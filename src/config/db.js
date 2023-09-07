@@ -7,7 +7,10 @@ dotenv.config()
 // CONNECT WITH MONOGODB WITH MONGOOSE
 const conectMongoDB = async () => {
     try {
-        let connect = await mongoose.connect(process.env.MONGOOSE_STRING);
+        let connect = await mongoose.connect(process.env.MONGOOSE_STRING , {
+            useNewUrlParser: true,
+            serverSelectionTimeoutMS : 5000
+        });
         console.log(`MongoDB Server Conected on PORT ${mongoose.connection.host}`.white.bgGreen)
     } catch (error) {
         console.log(`${error}`.white.bgRed)

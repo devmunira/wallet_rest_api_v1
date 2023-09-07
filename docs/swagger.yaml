@@ -2498,6 +2498,687 @@ paths:
           $ref: '#/components/responses/404'
         '400':
           $ref: '#/components/responses/400'
+  # Goal all EndPoints Start from Here
+  "/goals":
+    get:
+      description: Retrive all Goals according to search params with pagination
+      tags:
+        - Goal
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/populate'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/status'
+        - $ref: '#/components/parameters/fromdate'
+        - $ref: '#/components/parameters/todate'
+      responses:
+        '200':
+          description: Retrive all Goals according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Data Retrive Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/goal'
+                        - type: object
+                          properties:
+                            user:
+                              $ref : '#/components/schemas/user'
+                        - type: object
+                          properties:
+                            history:
+                              type: array
+                              items:
+                                allOf:
+                                  - type: object
+                                    properties:
+                                      id:
+                                        $ref: '#/components/schemas/id'
+                                  - type: object
+                                    properties:
+                                      amount: 
+                                        type: integer
+                                        example: '10000'
+                                      note:
+                                        type: string
+                                        example: 'Basha khoroch'
+                                      category:
+                                        allOf:
+                                          - $ref: '#/components/schemas/category'
+                                      user:
+                                        allOf:
+                                          - $ref: '#/components/schemas/user'
+                                      account:
+                                        allOf:
+                                          - $ref: '#/components/schemas/account'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /goals
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /goals/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /goals/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /goals/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Goal
+      tags:
+        - Goal
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Goal Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_amount: 
+                  type: integer
+                  example: '10000'
+                saved_amount: 
+                  type: integer
+                  example: '10000'
+                name:
+                  type: string
+                  example: 'Basha khoroch'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                status:
+                  type: string
+                  enum : [pending, complete]
+                  example: 'pending'
+                desired_date:
+                  type: string
+                  format: datetime
+                  example: '2023-07-20T02:14:06.058Z'
+                userId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , target_amount , saved_amount , desired_date]
+      responses:
+        '201':
+          description: Goal Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              target_amount: 
+                                type: integer
+                                example: '10000'
+                              saved_amount: 
+                                type: integer
+                                example: '10000'
+                              name:
+                                type: string
+                                example: 'Basha khoroch'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              status:
+                                type: string
+                                enum : [pending, complete]
+                                example: 'pending'
+                              desired_date:
+                                type: string
+                                format: datetime
+                                example: '2023-07-20T02:14:06.058Z'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/goals/{id}":
+    put:
+      description: Update or Create new Goal
+      tags:
+        - Goal
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Goal Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_amount: 
+                  type: integer
+                  example: '10000'
+                saved_amount: 
+                  type: integer
+                  example: '10000'
+                name:
+                  type: string
+                  example: 'Basha khoroch'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                status:
+                  type: string
+                  enum : [pending, complete]
+                  example: 'pending'
+                desired_date:
+                  type: string
+                  format: datetime
+                  example: '2023-07-20T02:14:06.058Z'
+                userId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , target_amount , saved_amount , desired_date]
+      responses:
+        '201':
+          description: Goal Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              target_amount: 
+                                type: integer
+                                example: '10000'
+                              saved_amount: 
+                                type: integer
+                                example: '10000'
+                              name:
+                                type: string
+                                example: 'Basha khoroch'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              status:
+                                type: string
+                                enum : [pending, complete]
+                                example: 'pending'
+                              desired_date:
+                                type: string
+                                format: datetime
+                                example: '2023-07-20T02:14:06.058Z'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '200':
+          description: Goal Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update Goal
+      tags:
+        - Goal
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Goal Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_amount: 
+                  type: integer
+                  example: '10000'
+                saved_amount: 
+                  type: integer
+                  example: '10000'
+                name:
+                  type: string
+                  example: 'Basha khoroch'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                status:
+                  type: string
+                  enum : [pending, complete]
+                  example: 'pending'
+                desired_date:
+                  type: string
+                  format: datetime
+                  example: '2023-07-20T02:14:06.058Z'
+                userId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , target_amount , saved_amount , desired_date]
+      responses:
+        '200':
+          description: Goal Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              target_amount: 
+                                type: integer
+                                example: '10000'
+                              saved_amount: 
+                                type: integer
+                                example: '10000'
+                              name:
+                                type: string
+                                example: 'Basha khoroch'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              status:
+                                type: string
+                                enum : [pending, complete]
+                                example: 'pending'
+                              desired_date:
+                                type: string
+                                format: datetime
+                                example: '2023-07-20T02:14:06.058Z'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Goal
+      tags: [Goal]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Goal Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Goal deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'        
+    get:
+      description: 'Get Single Goal All Information'
+      tags: [Goal]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/populate'
+        - $ref:  '#/components/parameters/select'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          _id:
+                           $ref: '#/components/schemas/id'
+                      - $ref: '#/components/schemas/goal'
+                      - type: object
+                        properties:
+                          history:
+                            type : array
+                            items:
+                              $ref: '#/components/schemas/expanse'
+                      - $ref: '#/components/schemas/timesteamp'
+                      - type: object
+                        properties:
+                          link:
+                            type: string
+                            format: url
+                            example: /goals/{incomesId}
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+  # Data Analysis all EndPoints Start From Here
+  "/data-analysis":
+    get:
+      description: "All Users Data Analysis and get financial State"
+      tags: [Record]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/fromdate'
+        - $ref:  '#/components/parameters/todate'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id : 
+                          $ref : '#/components/schemas/id'
+                        user : 
+                           $ref : '#/components/schemas/user'
+                        totalIncome:
+                          type: integer
+                          example: 200000
+                        totalexpanse:
+                          type: integer
+                          example: 100000
+                        topFiveExpansesCategory:
+                          type: array
+                          items:
+                            type: string
+                            example: 'Shopping'
+                        finalcialState:
+                          type: string
+                          example: 'poor'
+                        goals:
+                          type: array
+                          items:
+                            $ref : '#/components/schemas/goal'
+                        
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+  "/data-analysis/{id}":
+     get:
+      description: "Single Users Data Analysis and get financial State"
+      tags: [Record]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    type: object
+                    properties:
+                      id : 
+                        $ref : '#/components/schemas/id'
+                      user : 
+                         $ref : '#/components/schemas/user'
+                      totalIncome:
+                        type: integer
+                        example: 200000
+                      totalexpanse:
+                        type: integer
+                        example: 100000
+                      topFiveExpansesCategory:
+                        type: array
+                        items:
+                          type: string
+                          example: 'Shopping'
+                      goals:
+                        type: array
+                        items:
+                          $ref : '#/components/schemas/goal'
+                      finalcialState:
+                        type: string
+                        example: 'poor'
+                      expertsOpenion:
+                        type: string
+                        example: 'poor'
+                        
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+  "/filter-data-analysis":
+    get:
+      description: "All Users Data Analysis and get financial State based on financial State"
+      tags: [Record]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/fromdate'
+        - $ref:  '#/components/parameters/todate'
+        - $ref:  '#/components/parameters/financialstate'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id : 
+                          $ref : '#/components/schemas/id'
+                        user : 
+                           $ref : '#/components/schemas/user'
+                        totalIncome:
+                          type: integer
+                          example: 200000
+                        totalexpanse:
+                          type: integer
+                          example: 100000
+                        topFiveExpansesCategory:
+                          type: array
+                          items:
+                            type: string
+                            example: 'Shopping'
+                        finalcialState:
+                          type: string
+                          example: 'poor'
+                        goals:
+                          type: array
+                          items:
+                            $ref : '#/components/schemas/goal'
+                        
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
       
 components:
   securitySchemes:
@@ -2641,6 +3322,36 @@ components:
       schema:
         type: string
         example: '64f825a8e1e529afedd53695'
+    status:
+      in: query
+      name: status
+      description: Get spacific status data
+      schema:
+        type: string
+        example: 'pending'
+    financialstate:
+      in: query
+      name: financialstate
+      description: Get spacific financialstate data
+      schema:
+        type: string
+        example: 'poor'
+    fromdate:
+      in: query
+      name: fromdate
+      description: Get data from begining of a date to current
+      schema:
+        type: string
+        format: datetime
+        example: '2023-07-20T02:14:06.058Z'
+    todate:
+      in: query
+      name: todate
+      description: Get data from end of a date
+      schema:
+        type: string
+        format: datetime
+        example: '2023-07-20T02:14:06.058Z'
     role:
       in: query
       name: role
@@ -2975,7 +3686,3 @@ components:
       type: array
       items:
         $ref : '#/components/schemas/goal'
-    
-      
-          
-          

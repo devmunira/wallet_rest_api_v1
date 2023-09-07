@@ -22,7 +22,7 @@ const methodNotAllowError = (msg = 'Mathod Not Allowed!') => {
     return error;
 }
 
-export default {
+export {
     unAuthenticateError,
     unAuthorizedError,
     methodNotAllowError,

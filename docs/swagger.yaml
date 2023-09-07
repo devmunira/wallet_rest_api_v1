@@ -1,0 +1,2981 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/FSWFOFFICIAL/wallet/1.0.0
+  - description: Local Server For Development
+    url: http://localhost:4000/api/v1
+info:
+  version: "1.0.0"
+  title: Wallet Rest API
+  description: The API for the Wallet Personal Financial Management System Project. The Personal Finance Management System is a web application designed to help users manage their financial activities, including accounts, expenses, income, records, categories, goal setting, and managing lent and borrowed transactions. The system is built with scalability in mind to accommodate future expansion, including potential features for business financial  
+tags: 
+  - name : Auth
+    description: This Tag are handling all authentication route including forgot-password
+  - name : User
+    description: This Tag are handling all User Related route
+  - name : Role
+    description: This Tag are handling all Role Related route
+  - name : Permission
+    description: This Tag are handling all Permission Related route
+  - name : Category
+    description: This Tag are handling all Category Related route
+  - name : Account
+    description: This Tag are handling all Account Related route
+  - name : Expanse
+    description: This Tag are handling all Expanses Related route
+  - name : Income
+    description: This Tag are handling all Income Related route
+  - name : Goal
+    description: This Tag are handling all Goal Permission Related route
+  - name : Record
+    description: This Tag are handling all Record and Data Analysis Related route
+paths:
+  # Authentication EndPoints
+  "/auth/register":
+    post:
+      description: Sign Up End Points for user registration proccess
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref : '#/components/schemas/user'
+              required:
+                - password
+                - username
+                - email
+      responses:
+        '200':
+          description: Register Complete Successfully!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - $ref : '#/components/schemas/id'
+                  - $ref : '#/components/schemas/user'
+                  - $ref : '#/components/schemas/token'
+                  - $ref : '#/components/schemas/timesteamp'
+                  
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+  "/auth/login":
+    post:
+      description: Sign In End Points for user login proccess
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernameOremail:
+                  type: string
+                  example: 'muniraweb'
+                password:
+                  type: string
+                  example: '200720200'
+              required:
+                - password
+                - usernameOrEmail
+      responses:
+        '200':
+          description: Login Complete Successfully!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - $ref : '#/components/schemas/id'
+                  - $ref : '#/components/schemas/user'
+                  - $ref : '#/components/schemas/token'
+                  - $ref : '#/components/schemas/timesteamp'
+                  
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+  "/auth/logout":
+    post:
+      description: 'This endpoint is responsible for handling user logout process'
+      tags: 
+        - Auth
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      requestBody:
+        content:
+          application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                required:
+                  - id
+      responses:
+        '200':
+          description: Logout Complete Successfully!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+  "/auth/forgot-password/owner-verify":
+    post:
+      description: Email or Username Veify for password reset process
+      tags:
+        - Auth
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                usernameOremail:
+                  type: string
+                  example: muniraweb@gmail.com
+              required: 
+                - usernameOremail
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Check your inbox for verification link
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'            
+  "/auth/reset-password/{id}/{token}":
+    post:
+      description: Token Verify for password reset process
+      tags:
+        - Auth
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/token'
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  format: int32
+                  example: 658974
+                userId: 
+                  type: string
+                  example: "64bc052bd33381fd40a658f9"
+                password:
+                  type: string
+                  example: 658974
+                confirm_password:
+                  type: string
+                  example: 658974
+              required: 
+                - token
+                - userId
+                - password
+                - confirm_password
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Verification Successfully Completed.
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'            
+  "/auth/revoked-generate/token":
+    post:
+      description: Revoked Refresh token & Generate new Access Token
+      tags: [Auth]
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  format: jwt
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+             
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Refresh Token revoked and Access Token Generate.
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+  # User EndPoints
+  "/users":
+    post:
+      description: Create new users from backend
+      tags:
+        - User
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref : '#/components/schemas/user'
+              required:
+                - password
+                - username
+                - email
+      responses:
+        '200':
+          description: Register Complete Successfully!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      _id:
+                        $ref : '#/components/schemas/id'
+                  - $ref : '#/components/schemas/user'
+                  - $ref : '#/components/schemas/token'
+                  - $ref : '#/components/schemas/timesteamp'
+                  
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      description: Retrive all users according to search params with pagination
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/role'
+      responses:
+        '200':
+          description: Retrive all users according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            _id:
+                              $ref : '#/components/schemas/id'
+                        - $ref: '#/components/schemas/user'
+                        - type: object
+                          properties:
+                            role:
+                              $ref : '#/components/schemas/role'
+                        - $ref: '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /users/{userId}
+                      
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /users/search?q=test&page=1&limit=10&status=active
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /users/2/search?q=test&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /users/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+  "/users/{id}":
+    patch:
+      description: Profile Update for Auth user
+      tags: [User]
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: muniraweb
+                email:
+                  type: string
+                  format: email
+                  example: muniraweb@gmail.com
+                phone:
+                  type: string
+                  example: "01881959920"
+              
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Profile Updated Successfully Completed.
+                  data:
+                    allOf:
+                     - $ref: '#/components/schemas/user'
+                     - $ref: '#/components/schemas/timesteamp'
+                     - type: object
+                       properties:
+                        link:
+                          type: string
+                          format: url
+                          example: /users/{userId}
+                    
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500' 
+        '401':
+          $ref: '#/components/responses/401' 
+        '403':
+          $ref: '#/components/responses/403'
+    delete:
+      description: 'Delete User Account as well as all data asociated with account'
+      tags: [User]
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: User Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Data deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+    get:
+      description: 'Get Users All Information'
+      tags: [User]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/populate'
+        - $ref:  '#/components/parameters/select'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          _id:
+                           $ref: '#/components/schemas/id'
+                      - $ref: '#/components/schemas/user'
+                      - type: object
+                        properties:
+                          role:
+                            $ref: '#/components/schemas/role'
+                      - type: object
+                        properties:
+                          expanses:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/expanse'
+                      - type: object
+                        properties:
+                          incomes:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/income'
+                      - type: object
+                        properties:
+                          goals:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/goal'
+                                - $ref: '#/components/schemas/timesteamp'
+                      - type: object
+                        properties:
+                          link:
+                            type: string
+                            format: url
+                            example: /users/{userId}
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+  "/users/{id}/reset-password":
+    patch:
+      description: Password Update for Auth user
+      tags: [User]
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: muni658974
+                confirm_password:
+                  type: string
+                  example: muni658974
+                old_password:
+                  type: string
+                  example: muni658974
+              required: 
+                - password
+                - old_password
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Password Reset Successfully Completed.
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401' 
+        '403':
+          $ref: '#/components/responses/403'
+   # Category all EndPoints Start from Here
+  "/categories":
+    get:
+      description: Retrive all Category according to search params with pagination
+      tags:
+        - Category
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Retrive all Category according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/category'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /categories
+                      required:
+                        - id
+                        - name
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /categories/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /categories/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /categories/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Category
+      tags:
+        - Category
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Category Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: shopping
+              required: [name]
+      responses:
+        '201':
+          description: Category Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/category'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/category/{id}":
+    put:
+      description: Update or Create new Category
+      tags:
+        - Category
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Category Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: car
+              required: [name]
+      responses:
+        '201':
+          description: Category Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/category'
+                          - $ref : '#/components/schemas/timesteamp'
+        '200':
+          description: Category Updated Successfully
+          content:
+            application/json:
+              schema:
+               allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/category'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Category
+      tags: [Category]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Category Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Category deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+  # Permission all EndPoints Start from Here
+  "/permissions":
+    get:
+      description: Retrive all Permission according to search params with pagination
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Retrive all Permission according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/permission'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /permission
+                      required:
+                        - id
+                        - name
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /permission/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /permission/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /permission/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Permission
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Permission Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: update-user
+              required: [name]
+      responses:
+        '201':
+          description: Permission Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/permissions/{id}":
+    put:
+      description: Update or Create new Permission
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Permission Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: delete-user
+              required: [name]
+      responses:
+        '201':
+          description: Permission Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+        '200':
+          description: Permission Updated Successfully
+          content:
+            application/json:
+              schema:
+               allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Permission
+      tags: [Permission]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Permission Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Permission deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+  # Role all EndPoints Start from Here
+  "/roles":
+    get:
+      description: Retrive all Role according to search params with pagination
+      tags:
+        - Role
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/user'
+      responses:
+        '200':
+          description: Retrive all Role according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Data Retrive Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/role'
+                        - type: object
+                          properties:
+                            users:
+                              type: array
+                              items:
+                                $ref : '#/components/schemas/user'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /roles
+                      required:
+                        - id
+                        - name
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /roles/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /roles/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /roles/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Role
+      tags:
+        - Role
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Role Request Body
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/role'
+              required: [name]
+      responses:
+        '201':
+          description: Role Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/role'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/roles/{id}":
+    put:
+      description: Update or Create new Role
+      tags:
+        - Role
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Permission Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: delete-user
+              required: [name]
+      responses:
+        '201':
+          description: Role Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+        '200':
+          description: Role Updated Successfully
+          content:
+            application/json:
+              schema:
+               allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update Role
+      tags:
+        - Role
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Role Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  format: string
+                  example: delete-user
+              required: [name]
+      responses:
+        '200':
+          description: Role Updated Successfully
+          content:
+            application/json:
+              schema:
+               allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/permission'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Role
+      tags: [Role]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Role Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Role deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+  # Account all EndPoints Start from Here
+  "/accounts":
+    get:
+      description: Retrive all Accounts according to search params with pagination
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/populate'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/user'
+      responses:
+        '200':
+          description: Retrive all Accounts according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Data Retrive Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/account'
+                        - type: object
+                          properties:
+                            user:
+                              $ref : '#/components/schemas/user'
+                        - type: object
+                          properties:
+                            expanses:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  amount: 
+                                    type: integer
+                                    example: '10000'
+                                  note:
+                                    type: string
+                                    example: 'Basha khoroch'
+                                  category:
+                                    allOf:
+                                      - $ref: '#/components/schemas/category'
+                        - type: object
+                          properties:
+                            incomes:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  amount: 
+                                    type: integer
+                                    example: '10000'
+                                  note:
+                                    type: string
+                                    example: 'Basha khoroch'
+                                  category:
+                                    allOf:
+                                      - $ref: '#/components/schemas/category'
+                                  
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /accounts
+                      required:
+                        - id
+                        - name
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /accounts/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /accounts/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /accounts/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Account
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Account Request Body
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/account'
+              required: [name , account_details , initial_value]
+      responses:
+        '201':
+          description: Account Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/account'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/accounts/{id}":
+    get:
+      description: 'Get Single Account All Information'
+      tags: [Account]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/populate'
+        - $ref:  '#/components/parameters/select'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          _id:
+                           $ref: '#/components/schemas/id'
+                      - $ref: '#/components/schemas/account'
+                      - type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/user'
+                      - type: object
+                        properties:
+                          expanses:
+                            type: array
+                            items:
+                              type : object
+                              properties:
+                                amount: 
+                                  type: integer
+                                  example: '10000'
+                                note:
+                                  type: string
+                                  example: 'Basha khoroch'
+                                categoryId:
+                                  $ref: '#/components/schemas/category'
+                                goalId:
+                                  $ref: '#/components/schemas/goal'
+                      - type: object
+                        properties:
+                          incomes:
+                            type: array
+                            items:
+                              type : object
+                              properties:
+                                id:
+                                  $ref: '#/components/schemas/id'
+                                amount: 
+                                  type: integer
+                                  example: '10000'
+                                note:
+                                  type: string
+                                  example: 'Basha khoroch'
+                                categoryId:
+                                  $ref: '#/components/schemas/category'
+                      - type: object
+                        properties:
+                          link:
+                            type: string
+                            format: url
+                            example: /accounts/{accountId}
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+    put:
+      description: Update or Create new Account
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Account Request Body
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/account'
+              required: [name , account_details , initial_value]
+      responses:
+        '201':
+          description: Account Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/account'
+                          - $ref : '#/components/schemas/timesteamp'
+        '200':
+          description: Account Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/account'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update Account
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Account Request Body
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/account'
+              required: [name , account_details , initial_value]
+      responses:
+        '200':
+          description: Account Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/account'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Account
+      tags: [Account]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Account Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Account deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'        
+  # Expanse all EndPoints Start from Here
+  "/expanses":
+    get:
+      description: Retrive all Expanses according to search params with pagination
+      tags:
+        - Expanse
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/populate'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/goal'
+        - $ref: '#/components/parameters/account'
+        - $ref: '#/components/parameters/category'
+        - $ref: '#/components/parameters/min'
+        - $ref: '#/components/parameters/max'
+      responses:
+        '200':
+          description: Retrive all EXpanses according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Data Retrive Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/expanse'
+                        - type: object
+                          properties:
+                            user:
+                              $ref : '#/components/schemas/user'
+                        - type: object
+                          properties:
+                            goal:
+                              $ref : '#/components/schemas/goal'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /expanses
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /expanses/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /expanses/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /expanses/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Expanse
+      tags:
+        - Expanse
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Expanse Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+                goalId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , userId , accountId]
+      responses:
+        '201':
+          description: Expanse Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                              goalId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/expanses/{id}":
+    put:
+      description: Update or Create new Expanse
+      tags:
+        - Expanse
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Expanse Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+                goalId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , userId , accountId]
+      responses:
+        '201':
+          description: Expanse Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                              goalId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '200':
+          description: Expanse Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                              goalId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update Expanse
+      tags:
+        - Expanse
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Expanse Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+                goalId:
+                  $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: Expanse Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                              goalId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Expanse
+      tags: [Expanse]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Expanse Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Expanse deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'        
+    get:
+      description: 'Get Single Expanse All Information'
+      tags: [Expanse]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/populate'
+        - $ref:  '#/components/parameters/select'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          _id:
+                           $ref: '#/components/schemas/id'
+                      - $ref: '#/components/schemas/expanse'
+                      - type: object
+                        properties:
+                          link:
+                            type: string
+                            format: url
+                            example: /accounts/{accountId}
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+  # Income all EndPoints Start from Here
+  "/incomes":
+    get:
+      description: Retrive all Incomes according to search params with pagination
+      tags:
+        - Income
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/sortBy'
+        - $ref: '#/components/parameters/sortType'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/populate'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/user'
+        - $ref: '#/components/parameters/account'
+        - $ref: '#/components/parameters/category'
+        - $ref: '#/components/parameters/min'
+        - $ref: '#/components/parameters/max'
+      responses:
+        '200':
+          description: Retrive all Incomes according to search params with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 200
+                  message:
+                    type: string
+                    format: string
+                    example: Data Retrive Success
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              $ref : '#/components/schemas/id'
+                        - $ref : '#/components/schemas/income'
+                        - type: object
+                          properties:
+                            user:
+                              $ref : '#/components/schemas/user'
+                        - $ref : '#/components/schemas/timesteamp'
+                        - type: object
+                          properties:
+                            link:
+                              type: string
+                              format: url
+                              example: /incomes
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: url
+                        example: /expanses/search?q=pink&page=1&limit=10
+                      nextPage:
+                        type: string
+                        format: url
+                        example: /expanses/2/search?q=pink&page=2&limit=10
+                      prevPage:
+                        type: string
+                        format: url
+                        example: /expanses/1/search?q=test&page=1&limit=10
+                  pagination:
+                    $ref: '#/components/schemas/pagination'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+    post:
+      description: Create new Income
+      tags:
+        - Income
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      requestBody:
+        description: Income Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , userId , accountId]
+      responses:
+        '201':
+          description: Income Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+  "/incomes/{id}":
+    put:
+      description: Update or Create new Income
+      tags:
+        - Income
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Income Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+              required: [amount , userId , accountId]
+      responses:
+        '201':
+          description: Income Created Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/201'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+                
+        '200':
+          description: Income Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      description: Update Income
+      tags:
+        - Income
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Income Request Body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                  example: '10000'
+                note:
+                  type: string
+                  example: 'Basha khoroch'
+                categoryId:
+                  $ref: '#/components/schemas/id'
+                userId:
+                  $ref: '#/components/schemas/id'
+                accountId:
+                  $ref: '#/components/schemas/id'
+               
+      responses:
+        '200':
+          description: Income Updated Successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/200'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - type: object
+                            properties:
+                              amount: 
+                                type: integer
+                                example: '10000'
+                              note:
+                                type: string
+                                example: 'Basha khoroch'
+                              categoryId:
+                                $ref: '#/components/schemas/id'
+                              userId:
+                                $ref: '#/components/schemas/id'
+                              accountId:
+                                $ref: '#/components/schemas/id'
+                             
+                          - $ref : '#/components/schemas/timesteamp'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      security:
+        - bearerAuth: []
+        - RefreshTokenHeader : []
+      description: Delete Income
+      tags: [Income]
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Income Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int31
+                    example: 204
+                  message:
+                    type: string
+                    format: string
+                    example: Income deleted successfully
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'        
+    get:
+      description: 'Get Single Income All Information'
+      tags: [Income]
+      security: 
+        - bearerAuth: []
+        - RefreshTokenHeader: []
+      parameters: 
+        - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/populate'
+        - $ref:  '#/components/parameters/select'
+      responses:
+        '200':
+          description: 'Data Retrive Successully!'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Data Retrive Successully!
+                  data:
+                    allOf:
+                      - type: object
+                        properties:
+                          _id:
+                           $ref: '#/components/schemas/id'
+                      - $ref: '#/components/schemas/income'
+                      - type: object
+                        properties:
+                          link:
+                            type: string
+                            format: url
+                            example: /incomes/{incomesId}
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
+        '400':
+          $ref: '#/components/responses/400'
+      
+components:
+  securitySchemes:
+    bearerAuth : 
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    RefreshTokenHeader:
+      type: apiKey
+      in: header
+      name: x-refresh-token
+  responses:
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 400
+              message:
+                type: string
+                example: Bad Request!
+              errors:
+                $ref: '#/components/schemas/400'
+    '401':
+      description: Unauthenticated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 401
+              error:
+                type: string
+                example: Unauthenticated
+              message:
+                type: string
+                example: You are not an authenticated user
+    '403':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 403
+              error:
+                type: string
+                example: Unauthorized
+              message:
+                type: string
+                example: You don't have the right permissions
+    '404':
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 404
+              error:
+                type: string
+                example: Not Found
+              message:
+                type: string
+                example: Requested resource not found
+    '405':
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 405
+              error:
+                type: string
+                example: Method Not Allowed
+              message:
+                type: string
+                example: You are hiting on a invalid method
+    '500':
+      description: Server Error Occur
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+                example: 500
+              error:
+                type: string
+                example: Server Error
+              message:
+                type: string
+                example: Server Not Responding! Try again later.
+  parameters:
+    page:
+      in: query
+      name: page
+      description: Current Page Number for handle Pagination
+      schema:
+        type: integer
+        format: int31
+        example: 2
+    token:
+      in: query
+      name: token
+      description: Verification Token
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    category:
+      in: query
+      name: category
+      description: Get spacific category data
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    user:
+      in: query
+      name: user
+      description: Get spacific user data
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    role:
+      in: query
+      name: role
+      description: Get spacific role users
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    account:
+      in: query
+      name: account
+      description: Get spacific account data
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    goal:
+      in: query
+      name: goal
+      description: Get spacific goal data
+      schema:
+        type: string
+        example: '64f825a8e1e529afedd53695'
+    min:
+      in: query
+      name: min-price
+      description: Get data based on minimum value
+      schema:
+        type: integer
+        example: 1000
+    max:
+      in: query
+      name: max-price
+      description: Get data based on maximum value
+      schema:
+        type: integer
+        example: 10000
+    state:
+      in: query
+      name: state
+      description: Get spacific financial state items
+      schema:
+        type: string
+        format: string
+        example: 'poor'
+    limit:
+      in: query
+      name: limit
+      description: Data Redered limit Number for handle Pagination
+      schema:
+        type: integer
+        format: int31
+        example: 2
+    sortBy:
+      in: query
+      name: sortBy
+      description: Data Sorting Field
+      schema:
+        type: string
+        format: string
+        example: updatedAt
+    sortType:
+      in: query
+      name: sortType
+      description: Data Sorting Type (ase,desc)
+      schema:
+        type: string
+        format: string
+        enum:
+          - ase
+          - desc
+        example: desc
+    search:
+      in: query
+      name: search
+      description: Data Search params
+      schema:
+        type: string
+        example: munira
+    id:
+      in: path
+      name: id
+      required: true
+      description:  Document Unique Id
+      schema:
+        type: integer
+        format: int32
+        example: '64f825a8e1e529afedd53695'
+    select:
+      in : query
+      name: select
+      description: Select specific colum data
+      schema:
+        type: string
+        example: 'category, name'
+    populate:
+      in : query
+      name: populate
+      description: Select relational data details
+      schema:
+        type: string
+        example: 'category, role'
+  schemas:
+    'token':
+      type: object
+      properties:
+        # refreshToken: 
+        #   type: string
+        #   example : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        accessToken: 
+          type: string
+          example : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    '400':
+      type: array
+      items:
+        type: object
+        properties:
+          fields:
+            type: string
+            example: username
+          message:
+            type: string
+            example: username max length is 20 Letters
+    '200':
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: Request Handle Sucessfully!.
+    '201':
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 201
+        message:
+          type: string
+          example: Data Created Successully!.
+    pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          example: 2
+        limit:
+          type: integer
+          format: int32
+          example: 10
+        nextPage:
+          type: integer
+          format: int32
+          example: 3
+        prevPage:
+          type: integer
+          format: int32
+          example: 1
+        totalPage:
+          type: integer
+          format: int32
+          example: 5
+        totalItems:
+          type: integer
+          format: int32
+          example: 50
+      required:
+        - page
+        - limit
+        - totalPage
+        - totalItems
+    timesteamp:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: datetime
+          example: '2023-07-20T02:14:06.058Z'
+        updatedAt:
+          type: string
+          format: datetime
+          example: '2023-07-20T02:14:06.058Z'
+      required:
+        - createdAt
+        - updatedAt
+    id:
+      type: string
+      example: '60ef9c35e892b1452c59f2e3'
+    user:
+      type: object
+      properties:
+        username : 
+          type: string
+          example: 'munira123'
+        email:
+          type: string
+          format: email
+          example: 'muniraweb@gmail.com'
+        phone:
+          type: string
+          example: '01881959920'
+        roleId : 
+          type: string
+          example: '60ef9c35e892b1452c59f2e3'
+    account:
+      type: object
+      properties:
+        name : 
+          type: string
+          example: 'Islami Bank Bangladesh'
+        account_details:
+          type: string
+          example: 'Account No. 7415896321889'
+        initial_value:
+          type: integer
+          example: '100000'
+        userId : 
+          type: string
+          example: '60ef9c35e892b1452c59f2e3'
+    accounts:
+      type: array
+      items:
+        type: object
+        properties:
+          name : 
+            type: string
+            example: 'Islami Bank Bangladesh'
+          account_details:
+            type: string
+            example: 'Account No. 7415896321889'
+          initial_value:
+            type: integer
+            example: '100000'
+    role:
+      type: object
+      properties:
+        name : 
+          type: string
+          example: 'admin'
+        permissions :
+          type: array
+          items:
+            type: string
+            example: 'create-user'
+    permission:
+      type: object
+      properties:
+        name : 
+          type: string
+          example: 'create-user'
+    category:
+      type: object
+      properties:
+        name : 
+          type: string
+          example: 'admin'
+        slug : 
+          type: string
+          example: 'admin'
+    expanse:
+      type: object
+      properties:
+        amount: 
+          type: integer
+          example: '10000'
+        note:
+          type: string
+          example: 'Basha khoroch'
+        category:
+          allOf:
+            - $ref: '#/components/schemas/category'
+        user:
+          allOf:
+            - $ref: '#/components/schemas/user'
+        account:
+          allOf:
+            - $ref: '#/components/schemas/account'
+    income:
+      type: object
+      properties:
+        amount: 
+          type: integer
+          example: '10000'
+        note:
+          type: string
+          example: 'Basha khoroch'
+        category:
+          allOf:
+            - $ref: '#/components/schemas/category'
+        user:
+          allOf:
+            - $ref: '#/components/schemas/user'
+        account:
+          allOf:
+            - $ref: '#/components/schemas/account'
+    goal:
+      type: object
+      properties:
+        target_amount: 
+          type: integer
+          example: '10000'
+        saved_amount: 
+          type: integer
+          example: '10000'
+        name:
+          type: string
+          example: 'Basha khoroch'
+        note:
+          type: string
+          example: 'Basha khoroch'
+        status:
+          type: string
+          enum : [pending, complete]
+          example: 'pending'
+        desired_date:
+          type: string
+          format: datetime
+          example: '2023-07-20T02:14:06.058Z'
+        userId:
+          $ref: '#/components/schemas/id'
+    expanses:
+      type: array
+      items:
+        $ref : '#/components/schemas/expanse'
+    incomes:
+      type: array
+      items:
+        $ref : '#/components/schemas/income'
+    goals:
+      type: array
+      items:
+        $ref : '#/components/schemas/goal'
+    
+      
+          
+          

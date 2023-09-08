@@ -1,4 +1,4 @@
-import mongoose, {Schema , model} from "mongoose"
+import {Schema , model} from "mongoose"
 import {isAfter} from "date-fns"
 
 
@@ -22,7 +22,7 @@ const userSchema = new Schema({
         require : false,
     },
     roleId : {
-        type: mongoose.Types.ObjectId(),
+        type: Schema.Types.ObjectId,
         ref : 'Role',
     },
     verification_token : {
@@ -54,6 +54,7 @@ userSchema.set('toJSON' , {
     versionKey: false,
 });
 
+const User = model('User' , userSchema)
 
-module.exports = User
+export default User
 

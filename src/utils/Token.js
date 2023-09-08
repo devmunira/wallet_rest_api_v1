@@ -24,7 +24,7 @@ const verifyJWT = ({JWT_SECRET = process.env.JWT_SECRET ,token , algorithm = "HS
 }
 
 
-export {
+export default {
     generateJWT,
     verifyJWT
 }

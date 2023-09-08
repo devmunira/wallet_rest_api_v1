@@ -22,9 +22,25 @@ const methodNotAllowError = (msg = 'Mathod Not Allowed!') => {
     return error;
 }
 
+
+const notFoundError = (msg = 'Resource Not Found!') => {
+    const error = new Error(msg)
+    error.status = 404
+    return error;
+}
+
+const badRequestError = ({msg = 'Bad Request!' , errors = []}) => {
+    const error = new Error(msg)
+    error.status = 405
+    error.errors = errors
+    return error;
+}
+
 export {
     unAuthenticateError,
     unAuthorizedError,
     methodNotAllowError,
-    serverError
+    serverError,
+    badRequestError,
+    notFoundError
 }

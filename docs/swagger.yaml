@@ -9,7 +9,9 @@ info:
   version: "1.0.0"
   title: Wallet Rest API
   description: The API for the Wallet Personal Financial Management System Project. The Personal Finance Management System is a web application designed to help users manage their financial activities, including accounts, expenses, income, records, categories, goal setting, and managing lent and borrowed transactions. The system is built with scalability in mind to accommodate future expansion, including potential features for business financial  
-tags: 
+tags:
+  - name : Health
+    description: This Tag are handling API Health Route
   - name : Auth
     description: This Tag are handling all authentication route including forgot-password
   - name : User
@@ -30,7 +32,18 @@ tags:
     description: This Tag are handling all Goal Permission Related route
   - name : Record
     description: This Tag are handling all Record and Data Analysis Related route
+  
 paths:
+  # Health Route
+  "/health":
+    get:
+      description:'This is API Health Route to Check API is live on Server.'
+    tags : [Health]
+    responses:
+      '500':
+        $ref: '#/components/responses/500'
+      '404':
+        $ref: '#/components/responses/404'
   # Authentication EndPoints
   "/auth/register":
     post:

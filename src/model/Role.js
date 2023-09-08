@@ -14,5 +14,5 @@ const roleSchema = new Schema({
 },{timestamps : true});
 
 const Role = model('Role' , roleSchema)
-module.exports = Role
 
+export default Role

@@ -1,12 +1,13 @@
 import nodemailer from "nodemailer"
 import {badRequestError, serverError} from "../utils/Error.js"
-
+import dotenv from "dotenv";
+dotenv.config()
 
 // setup smtp for mail sender
-export const mailTransporter = (_req,_res,next) => {
+const mailTransporter = (_req,_res,next) => {
    try {
     const transporter = nodemailer.createTransport({
-        host: 'sdcbangladesh.org', 
+        host: 'makalamengineeringconstruction.com', 
         port: 465, 
         secure: true, 
         auth: {
@@ -16,6 +17,7 @@ export const mailTransporter = (_req,_res,next) => {
     });
     return transporter;
    } catch (err) {
+    console.log(err)
       let error = new Error(err)
       error.status = 400,
       next(err)
@@ -32,14 +34,16 @@ const sendEmailForEmailVerify = async (email,username,userId,code) => {
                 message: 'For Sending Mail you must send required Information!'
             }]})
         const transporter = mailTransporter();
+        console.log(transporter)
         const mailOptions = {
             from: process.env.SMTP_USER,
             to: email,
             subject: 'Forgot Password OTP',
             html: `<strong>Dear ${username},</strong><br><p>You have requested to reset your password for your account with Wallet.  
-            Please use the following One-Time Link to reset your password: 
-            <button style="background-color : 'blue' ; color : 'white';">
-            <strong>${process.env.SITE_URL}/${username}/${userId}/${code}</strong></button> </p>
+            Please use the following One-Time Link to reset your password: </br> </br>
+            <button style="background-color: black; color: white; border: none;">
+            ${process.env.SITE_URL}/api/v1/reset-password/${userId}/${code}</button>    
+            </p>
             <p>This Link is valid for the next 5 minutes. If you didn't request this password reset, please ignore this email.</p>
             <p>Thank you,</p>
             <p>The Wallet Core Team</p>`
@@ -47,6 +51,7 @@ const sendEmailForEmailVerify = async (email,username,userId,code) => {
         await transporter.sendMail(mailOptions)
         return true;
     } catch (error) {
+        console.log(error)
         throw serverError(error.message)
     }
 }

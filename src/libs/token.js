@@ -1,18 +1,13 @@
+import { ACCESSTOKENLIFETIME, REFRESHTOKENLIFETIME } from "../config/auth.js";
 import User from "../model/User.js";
 import { serverError } from "../utils/Error.js";
 import TokenUtils from "../utils/Token.js"
 
 
-const generateNewAccessRefreshToken = async ({payload}) => {
+const generateNewAccessRefreshToken = ({payload}) => {
     try {
-       const accessToken  =  TokenUtils.generateJWT({payload , expiresIn : '10m'});
-       const refreshToken =  TokenUtils.generateJWT({payload, expiresIn : '1day'});
-    
-       const user = await User.findOne({id : payload._id}).exec();
-       user.refresh_token = refreshToken;
-       user.issuedIp = payload.issuedIp;
-       await user.save();
-
+       const accessToken  =  TokenUtils.generateJWT({payload, expiresIn : ACCESSTOKENLIFETIME});
+       const refreshToken =  TokenUtils.generateJWT({payload,  expiresIn : REFRESHTOKENLIFETIME});
        return {accessToken, refreshToken}
     } catch (error) {
         throw serverError(error.message)
@@ -20,6 +15,22 @@ const generateNewAccessRefreshToken = async ({payload}) => {
 }
 
 
+
+// store refresh token in db
+const createOrUpdateToken = async (id,refreshToken,issuedIp) => {
+    try {
+        const user = await User.findOne(id).exec();
+        console.log('user' , user)
+        user.refresh_token = refreshToken;
+        user.issuedIp = issuedIp;
+        await user.save();
+    } catch (error) {
+        throw serverError(error.message)
+    }
+}
+
+
 export default {
-    generateNewAccessRefreshToken
+    generateNewAccessRefreshToken,
+    createOrUpdateToken
 }

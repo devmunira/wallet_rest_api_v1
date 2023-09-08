@@ -9,7 +9,8 @@ import ip from "ip"
 
 // Generate JWT Token
 const generateJWT = ({payload, JWT_SECRET = process.env.JWT_SECRET , expiresIn = "1h" , algorithm = "HS256" }) => {
-    return JWT.sign({...payload}, JWT_SECRET , {algorithm : algorithm, expiresIn})
+    const Token =  JWT.sign({...payload}, JWT_SECRET , {algorithm : algorithm, expiresIn})
+    return Token;
 }
 
 // Verify JWT Token

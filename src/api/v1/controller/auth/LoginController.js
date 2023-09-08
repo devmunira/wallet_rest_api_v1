@@ -1,5 +1,6 @@
-import { Auth, Token } from "../../../../libs/index.js";
+import { AuthLibs, TokenLibs } from "../../../../libs/index.js";
 import ip from 'ip'
+import { serverError } from "../../../../utils/Error.js";
 
 
 /**
@@ -11,26 +12,24 @@ import ip from 'ip'
 const Login = async (req,res,next) => {
     try {
         const {usernameOremail} = req.body;
-        const user = await Auth.login(usernameOremail);
+        const user = await AuthLibs.login(usernameOremail);
 
-        const {accessToken} = await Token.generateNewAccessRefreshToken({payload : {...user, issuedIp : ip.address()}});
+        // Generate Access & Refresh Token for User
+        const {accessToken, refreshToken} = TokenLibs.generateNewAccessRefreshToken({payload: {...user, issuedIp : ip.address()}});
+
+        // update refresh token
+        await TokenLibs.createOrUpdateToken(user._id , refreshToken , ip.address())
 
         res.status(200).json({
           code : 200,
           mesaage : 'Login Completed Successfully!',
-          user : {
-            id: user?._id,
-            username : user?.username,
-            email : user?.email,
-            phone : user?.phone,
-            roleId : user?.roleId,
+          data : {
+            ...user._doc,
+            accessToken,
           },
-          accessToken,
         })
      } catch (err) {
-         const error = new Error(err)
-         error.status = 400
-         next(error)
+         next(err)
      }
 }
 

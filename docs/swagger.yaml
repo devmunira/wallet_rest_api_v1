@@ -1,8 +1,5 @@
 openapi: 3.0.0
 servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/FSWFOFFICIAL/wallet/1.0.0
   - description: Local Server For Development
     url: http://localhost:4000/api/v1
 info:
@@ -37,13 +34,20 @@ paths:
   # Health Route
   "/health":
     get:
-      description:'This is API Health Route to Check API is live on Server.'
-    tags : [Health]
-    responses:
-      '500':
-        $ref: '#/components/responses/500'
-      '404':
-        $ref: '#/components/responses/404'
+      description: 'This is API Health Route to Check API is live on Server.'
+      tags : 
+      - Health
+      responses:
+        '200':
+          description: Login Complete Successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/200'
+        '500':
+          $ref: '#/components/responses/500'
+        '404':
+          $ref: '#/components/responses/404'
   # Authentication EndPoints
   "/auth/register":
     post:
@@ -56,8 +60,19 @@ paths:
             schema:
               allOf:
                 - $ref : '#/components/schemas/user'
+                - type: object
+                  properties:
+                    password:
+                      type: string
+                      example : '200720Ma!'
+                - type: object
+                  properties:
+                    confirm_password:
+                      type: string
+                      example : '200720Ma!'
               required:
                 - password
+                - confirm_password
                 - username
                 - email
       responses:
@@ -68,10 +83,17 @@ paths:
               schema:
                 allOf:
                   - $ref : '#/components/schemas/200'
-                  - $ref : '#/components/schemas/id'
-                  - $ref : '#/components/schemas/user'
-                  - $ref : '#/components/schemas/token'
-                  - $ref : '#/components/schemas/timesteamp'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - type: object
+                            properties:
+                              id:
+                                $ref : '#/components/schemas/id'
+                          - $ref : '#/components/schemas/user'
+                          - $ref : '#/components/schemas/token'
+                          - $ref : '#/components/schemas/timesteamp'
                   
         '400':
           $ref: '#/components/responses/400'
@@ -107,7 +129,10 @@ paths:
               schema:
                 allOf:
                   - $ref : '#/components/schemas/200'
-                  - $ref : '#/components/schemas/id'
+                  - type: object
+                    properties:
+                      id:
+                        $ref : '#/components/schemas/id'
                   - $ref : '#/components/schemas/user'
                   - $ref : '#/components/schemas/token'
                   - $ref : '#/components/schemas/timesteamp'
@@ -125,13 +150,14 @@ paths:
         - Auth
       security:
         - bearerAuth: []
-        - RefreshTokenHeader: []
       requestBody:
         content:
           application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/id'
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/id'
                 required:
                   - id
       responses:
@@ -152,7 +178,7 @@ paths:
           $ref: '#/components/responses/404'
         '401':
           $ref: '#/components/responses/401'
-  "/auth/forgot-password/owner-verify":
+  "/forgot-password/owner-verify":
     post:
       description: Email or Username Veify for password reset process
       tags:
@@ -189,7 +215,36 @@ paths:
           $ref: '#/components/responses/405'
         '500':
           $ref: '#/components/responses/500'            
-  "/auth/reset-password/{id}/{token}":
+  "/reset-password/{id}/{token}":
+    get:
+      description: Token Verify for password reset process
+      tags:
+        - Auth
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Verification Successfully Completed.
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500' 
+  "/reset-password/{id}/{token}":
     post:
       description: Token Verify for password reset process
       tags:
@@ -203,13 +258,6 @@ paths:
             schema:
               type: object
               properties:
-                token:
-                  type: string
-                  format: int32
-                  example: 658974
-                userId: 
-                  type: string
-                  example: "64bc052bd33381fd40a658f9"
                 password:
                   type: string
                   example: 658974
@@ -217,8 +265,6 @@ paths:
                   type: string
                   example: 658974
               required: 
-                - token
-                - userId
                 - password
                 - confirm_password
       responses:
@@ -286,7 +332,6 @@ paths:
         - User
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
       requestBody:
         content:
           application/json:
@@ -401,7 +446,7 @@ paths:
       tags: [User]
       security:
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters:
         - $ref: '#/components/parameters/id'
       requestBody:
@@ -462,7 +507,7 @@ paths:
       tags: [User]
       security:
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
@@ -494,7 +539,7 @@ paths:
       tags: [User]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -567,7 +612,7 @@ paths:
       tags: [User]
       security:
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters:
         - $ref: '#/components/parameters/id'
       requestBody:
@@ -1480,7 +1525,7 @@ paths:
       tags: [Account]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -2069,7 +2114,7 @@ paths:
       tags: [Expanse]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -2468,7 +2513,7 @@ paths:
       tags: [Income]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -2951,7 +2996,7 @@ paths:
       tags: [Goal]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -3008,7 +3053,7 @@ paths:
       tags: [Record]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/fromdate'
         - $ref:  '#/components/parameters/todate'
@@ -3071,7 +3116,7 @@ paths:
       tags: [Record]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/id'
       responses:
@@ -3134,7 +3179,7 @@ paths:
       tags: [Record]
       security: 
         - bearerAuth: []
-        - RefreshTokenHeader: []
+        
       parameters: 
         - $ref:  '#/components/parameters/fromdate'
         - $ref:  '#/components/parameters/todate'
@@ -3315,7 +3360,7 @@ components:
         format: int31
         example: 2
     token:
-      in: query
+      in: path
       name: token
       description: Verification Token
       schema:
@@ -3448,8 +3493,7 @@ components:
       required: true
       description:  Document Unique Id
       schema:
-        type: integer
-        format: int32
+        type: string
         example: '64f825a8e1e529afedd53695'
     select:
       in : query

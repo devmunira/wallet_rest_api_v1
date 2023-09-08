@@ -1,7 +1,9 @@
-import Auth from "./auth.js"
-import Token from "./token.js"
+import AuthLibs from "./auth.js"
+import TokenLibs from "./token.js"
+import UserLibs from "./user.js"
 
 export {
-    Auth,
-    Token
+    AuthLibs,
+    TokenLibs,
+    UserLibs
 }

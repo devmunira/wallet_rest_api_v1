@@ -3481,7 +3481,7 @@ components:
         type: string
         format: string
         enum:
-          - ase
+          - asc
           - desc
         example: desc
     search:

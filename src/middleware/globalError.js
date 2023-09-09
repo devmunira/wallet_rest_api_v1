@@ -10,7 +10,14 @@ export const globalErrorHandellar = (error,_req,res,_next)=>{
     if (error.name === "CastError") {
         const message = `Resource not found. Invalid: ${error.path}`;
         res.status(400).json({message})
-    }else if(error.status){
+    }
+
+    if (error.code === 11000) {
+        const message = `Duplicate Value Entered`;
+        res.status(400).json({message})
+    }
+
+    if(error.status){
         res.status(error.status).json({
             message : error.message
         })

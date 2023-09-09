@@ -26,7 +26,7 @@ const userSchema = new Schema({
         ref : 'Role',
     },
     verification_token : {
-        type: Number,
+        type: String,
         require: false,
     },
     expiredAt : {

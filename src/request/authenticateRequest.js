@@ -120,8 +120,30 @@ const verifyEmailRequest = [
 ]
 
 
+
+// Sign Request Body Validator
+const resetRequestValidator = [
+    body('password')
+    .trim()
+    .isLength({min: 6, max:12})
+    .withMessage('Password must be between 5-10 charecters')
+    .bail()
+    .isStrongPassword()
+    .withMessage('Password must be strong'),
+
+    body('confirm_password')
+    .trim()
+    .custom((val,{req}) => {
+        if(val !== req.body.password) throw new Error('Password not match')
+        return true;
+    }),
+];
+
+
+
 export default {
     verifyEmailRequest,
     registerRequestValidator,
-    loginRequestValidator
+    loginRequestValidator,
+    resetRequestValidator
 }

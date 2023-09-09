@@ -9,6 +9,8 @@ const login = async (usernameOremail = '') => {
     if(!user) throw notFoundError();
     delete user._doc.password
     delete user._doc.refresh_token
+    delete user._doc.verification_token
+    delete user._doc.expiredAt
     delete user._doc.id
     delete user._doc.__v
     return user

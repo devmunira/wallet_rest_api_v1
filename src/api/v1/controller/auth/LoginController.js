@@ -15,7 +15,7 @@ const Login = async (req,res,next) => {
         const user = await AuthLibs.login(usernameOremail);
 
         // Generate Access & Refresh Token for User
-        const {accessToken, refreshToken} = TokenLibs.generateNewAccessRefreshToken({payload: {...user, issuedIp : ip.address()}});
+        const {accessToken, refreshToken} = TokenLibs.generateNewAccessRefreshToken({payload: {...user._doc, issuedIp : ip.address()}});
 
         // update refresh token
         await TokenLibs.createOrUpdateToken(user._id , refreshToken , ip.address())

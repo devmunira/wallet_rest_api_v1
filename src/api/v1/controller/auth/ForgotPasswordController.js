@@ -1,8 +1,7 @@
-import { UserLibs } from "../../../../libs/index.js";
-import User from "../../../../model/User.js";
-import { notFoundError } from "../../../../utils/Error.js";
+import { TokenLibs, UserLibs } from "../../../../libs/index.js";
 import { generateUniqueCode } from "../../../../utils/Generate.js";
 import { sendEmailForEmailVerify } from "../../../../utils/Mail.js";
+import bcrypt from "bcrypt"
 
 /**
 * @return check email and send an verification link to mail
@@ -37,20 +36,13 @@ const VerifyOwner = async (req,res,next) => {
 const VerifyRsestLink = async (req,res,next) => {
    try {
      const {id, token} = req.params;
-     const user = await User.findById(id).exec();
-     if(!user) throw notFoundError('User not Found!');
-
-     const notExpired = user.notExpired;
-
-     if(!notExpired) throw new Error('Invalid Request!')
-
+     const user = await TokenLibs.verifyToken(id, token)
      res.status(200).json({
       code : 200,
       message : 'Verification Pass Successfully!'
      })
 
    } catch (error) {
-      console.log(error)
       next(error)
    }
  }
@@ -62,7 +54,21 @@ const VerifyRsestLink = async (req,res,next) => {
 //  Validate Reset Password Provided Link
 const ResetPassword = async (req,res,next) => {
    try {
-      
+     const {id,token} = req.params;
+     const {password} = req.body;
+
+     const user = await TokenLibs.verifyToken(id, token);
+   
+     const hasPassword = await bcrypt.hash(password, 10);
+     user.password = hasPassword;
+     user.refresh_token = '';
+     user.issuedIp = '';
+     await user.save();
+   
+     res.status(200).json({
+      code : 200,
+      message : 'Password Reset Successfully!'
+     })
    } catch (error) {
       next(error)
    }

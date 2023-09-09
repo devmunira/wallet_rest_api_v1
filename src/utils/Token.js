@@ -25,7 +25,19 @@ const verifyJWT = ({JWT_SECRET = process.env.JWT_SECRET ,token , algorithm = "HS
 }
 
 
+// Verify JWT Token
+const decodeJWT = ({token , algorithm = "HS256"}) => {
+    try {
+       return JWT.decode(token,{algorithms : [algorithm]})
+    } catch (error) {
+        throw unAuthenticateError('Invalid Token!')
+    }
+}
+
+
+
 export default {
     generateJWT,
-    verifyJWT
+    verifyJWT,
+    decodeJWT
 }

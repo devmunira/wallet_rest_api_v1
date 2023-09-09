@@ -11,9 +11,10 @@ router.get('/health' , (_req,res) => res.status(200).json({code : 200 , message 
 router.post('/auth/login', AuthRequest.loginRequestValidator , requestValidator ,  AuthController.Login)
 router.post('/auth/register', AuthRequest.registerRequestValidator , requestValidator ,  AuthController.Register)
 router.post('/auth/logout', authenticate ,  AuthController.Logout)
-router.post('/forgot-password/owner-verify', AuthRequest.verifyEmailRequest ,  AuthController.VerifyOwner)
+router.post('/forgot-password/owner-verify' , AuthController.VerifyOwner)
 router.get('/reset-password/:id/:token', AuthController.VerifyRsestLink)
-router.post('/reset-password/:id/:token', AuthController.ResetPassword)
+router.post('/reset-password/:id/:token', AuthRequest.resetRequestValidator, requestValidator,  AuthController.ResetPassword)
+router.post('/refresh', AuthController.Refresh)
 
 
 

@@ -41,8 +41,9 @@ const sendEmailForEmailVerify = async (email,username,userId,code) => {
             subject: 'Forgot Password OTP',
             html: `<strong>Dear ${username},</strong><br><p>You have requested to reset your password for your account with Wallet.  
             Please use the following One-Time Link to reset your password: </br> </br>
-            <button style="background-color: black; color: white; border: none;">
-            ${process.env.SITE_URL}/api/v1/reset-password/${userId}/${code}</button>    
+            <a href='${process.env.SITE_URL}/api/v1/reset-password/${userId}/${code}'>
+                Click Me to Verify Your Self
+            </a>    
             </p>
             <p>This Link is valid for the next 5 minutes. If you didn't request this password reset, please ignore this email.</p>
             <p>Thank you,</p>

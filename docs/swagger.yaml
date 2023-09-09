@@ -216,35 +216,6 @@ paths:
         '500':
           $ref: '#/components/responses/500'            
   "/reset-password/{id}/{token}":
-    get:
-      description: Token Verify for password reset process
-      tags:
-        - Auth
-      parameters:
-        - $ref: '#/components/parameters/id'
-        - $ref: '#/components/parameters/token'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    format: int32
-                    example: 200
-                  message:
-                    type: string
-                    example: Verification Successfully Completed.
-        '400':
-          $ref: '#/components/responses/400'
-        '405':
-          $ref: '#/components/responses/405'
-        '500':
-          $ref: '#/components/responses/500' 
-  "/reset-password/{id}/{token}":
     post:
       description: Token Verify for password reset process
       tags:
@@ -287,8 +258,36 @@ paths:
         '405':
           $ref: '#/components/responses/405'
         '500':
-          $ref: '#/components/responses/500'            
-  "/auth/revoked-generate/token":
+          $ref: '#/components/responses/500'    
+    get:
+      description: Token Verify for password reset process
+      tags:
+        - Auth
+      parameters:
+        - $ref: '#/components/parameters/id'
+        - $ref: '#/components/parameters/token'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Verification Successfully Completed.
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'         
+  "/refresh":
     post:
       description: Revoked Refresh token & Generate new Access Token
       tags: [Auth]
@@ -298,7 +297,7 @@ paths:
             schema:
               type: object
               properties:
-                refresh_token:
+                access_token:
                   type: string
                   format: jwt
                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
@@ -318,6 +317,11 @@ paths:
                   message:
                     type: string
                     example: Refresh Token revoked and Access Token Generate.
+                  access_token:
+                    type: string
+                    format: jwt
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+             
         '400':
           $ref: '#/components/responses/400'
         '405':

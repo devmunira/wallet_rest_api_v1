@@ -6,11 +6,7 @@ const roleSchema = new Schema({
         require : true,
         type: String,
         unique: true,
-    },
-    permissions :{
-        type: [String],
-        require : false,
-    },
+    }
 },{timestamps : true});
 
 const Role = model('Role' , roleSchema)

@@ -7,6 +7,10 @@ import Category from "../model/Category.js"
 const categoryCreateRequest  = [
     body('name')
     .trim()
+    .notEmpty()
+    .bail()
+    .isLength({min : 3 , max:20})
+    .bail()
     .custom(async (val) => {
         const category = await Category.findOne({ name : val });
         if (category) {

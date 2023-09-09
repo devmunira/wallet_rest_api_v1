@@ -1,8 +1,10 @@
 import express from "express"
 import AuthController from "../api/v1/controller/auth/index.js";
 import PermissionController from "../api/v1/controller/permission/index.js";
+import CategoryController from "../api/v1/controller/category/index.js";
+import RoleController from "../api/v1/controller/role/index.js";
 const router = express.Router();
-import {AuthRequest , PermissionRequest , QueryRequest} from "../request/index.js"
+import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest} from "../request/index.js"
 import {requestValidator , authenticate} from "../middleware/index.js"
 
 // API Health Route
@@ -24,6 +26,26 @@ router.route('/permissions')
 router.route('/permissions/:id')
 .put(authenticate , PermissionController.updateByPut)
 .delete(authenticate , PermissionController.deleteById)
+
+
+
+// Role Router Start From Here
+router.route('/roles')
+.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  RoleController.create)
+.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  RoleController.getAll)
+router.route('/roles/:id')
+.put(authenticate , RoleController.updateByPut)
+.delete(authenticate , RoleController.deleteById)
+
+
+
+// Category Router Start From Here
+router.route('/categories')
+.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
+.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
+router.route('/categories/:id')
+.put(authenticate , CategoryController.updateByPut)
+.delete(authenticate , CategoryController.deleteById)
 
 
 // export for use on index file

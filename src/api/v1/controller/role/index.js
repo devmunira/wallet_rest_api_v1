@@ -4,7 +4,7 @@ import {
     updateByPut,
     deleteById,
     bulkDelete
-} from "./CategoryController.js"
+} from "./RoleController.js"
 
 
 export default {

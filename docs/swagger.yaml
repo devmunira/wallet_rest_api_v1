@@ -1113,7 +1113,6 @@ paths:
         - $ref: '#/components/parameters/sortBy'
         - $ref: '#/components/parameters/sortType'
         - $ref: '#/components/parameters/search'
-        - $ref: '#/components/parameters/user'
       responses:
         '200':
           description: Retrive all Role according to search params with pagination
@@ -1139,12 +1138,6 @@ paths:
                             id:
                               $ref : '#/components/schemas/id'
                         - $ref : '#/components/schemas/role'
-                        - type: object
-                          properties:
-                            users:
-                              type: array
-                              items:
-                                $ref : '#/components/schemas/user'
                         - $ref : '#/components/schemas/timesteamp'
                         - type: object
                           properties:

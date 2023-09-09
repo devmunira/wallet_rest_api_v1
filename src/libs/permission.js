@@ -82,7 +82,6 @@ const deleteById = async (id) => {
     console.log(permission)
     if(!permission) {
         throw notFoundError();
-        return false
     }else{
       const role_permissions = await PermissionRole.deleteMany({permissionId : id});
       await permission.deleteOne()

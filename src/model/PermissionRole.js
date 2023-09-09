@@ -6,13 +6,14 @@ const ropermissionRoleSchema = new Schema({
         require : true,
         type: mongoose.Types.ObjectId,
         ref : 'Role',
-        unique: true,
+        unique: false,
     },
     permissionId : {
         require : true,
         type: mongoose.Types.ObjectId,
         ref : 'Permission',
-        unique: true,
+        unique: false,
+
     },
 },{timestamps : true});
 

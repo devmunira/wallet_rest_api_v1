@@ -7,14 +7,17 @@ import Permission from "./../model/Permission.js"
 const permissionCreateRequest  = [
     body('name')
     .trim()
-    .isLength({min: 5 , max:20})
+    .notEmpty()
+    .bail()
+    .isLength({min : 3 , max:20})
+    .bail()
     .isString()
+    .bail()
     .custom(async (val) => {
         const permission = await Permission.findOne({ name : val });
         if (permission) {
             return Promise.reject('Permission is already Added!');
         }
-
         return true
     }),
 ];

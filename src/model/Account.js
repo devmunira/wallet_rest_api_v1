@@ -10,13 +10,13 @@ const accountSchema = new Schema({
         require : false,
         type: String,
     },
-    initial_val : {
+    initial_value : {
         require : true,
         type: Number,
     },
     userId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'User',
     },
 },{timestamps : true});

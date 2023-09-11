@@ -5,8 +5,7 @@ import {
     updateByPatch,
     updateByPut,
     deleteById,
-    resetPasword
-} from "./UserController.js"
+} from "./AccountController.js"
 
 
 export default {
@@ -16,5 +15,4 @@ export default {
     updateByPatch,
     updateByPut,
     deleteById,
-    resetPasword
 }

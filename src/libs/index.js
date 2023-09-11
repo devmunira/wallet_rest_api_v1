@@ -4,6 +4,7 @@ import UserLibs from "./user.js"
 import PermissionLibs from "./permission.js"
 import CategoryLibs from "./category.js"
 import RoleLibs from "./role.js"
+import AccountLibs from "./account.js"
 
 export {
     AuthLibs,
@@ -11,5 +12,6 @@ export {
     UserLibs,
     PermissionLibs,
     CategoryLibs,
-    RoleLibs
+    RoleLibs,
+    AccountLibs
 }

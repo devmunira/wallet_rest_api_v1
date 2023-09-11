@@ -4,6 +4,7 @@ import CategoryRequest from "./categoryRequest.js"
 import RoleRequest from "./roleRequest.js"
 import QueryRequest from "./queryRequest.js"
 import UserRequest from "./userRequest.js"
+import AccountRequest from "./accountRequest.js"
 
 export {
     AuthRequest,
@@ -11,5 +12,6 @@ export {
     CategoryRequest,
     RoleRequest,
     QueryRequest,
-    UserRequest
+    UserRequest,
+    AccountRequest
 }

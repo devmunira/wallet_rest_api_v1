@@ -2,7 +2,7 @@ import { PermissionLibs } from "../libs/index.js";
 import Role from "../model/Role.js";
 import { unAuthorizedError } from "../utils/Error.js";
 
-const authorization = (requiredPermissions) => async (req,_res,next) => {
+const authorization = (requiredPermissions = []) => async (req,_res,next) => {
     try {
         const role = await Role.findById(req.user.roleId).exec();
         if(role._doc.name === 'admin' ||role._doc.name === 'Admin' ||role._doc.name === 'Super-Admin' ||role._doc.name === 'super-admin' ){

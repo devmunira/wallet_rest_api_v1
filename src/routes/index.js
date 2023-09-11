@@ -4,8 +4,9 @@ import PermissionController from "../api/v1/controller/permission/index.js";
 import CategoryController from "../api/v1/controller/category/index.js";
 import RoleController from "../api/v1/controller/role/index.js";
 import UserController from "../api/v1/controller/user/index.js";
+import AccountController from "../api/v1/controller/account/index.js";
 const router = express.Router();
-import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest, UserRequest} from "../request/index.js"
+import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest, UserRequest, AccountRequest} from "../request/index.js"
 import {requestValidator , authenticate} from "../middleware/index.js"
 import authorization from "../middleware/authorization.js";
 
@@ -57,7 +58,6 @@ router.route('/users/:id')
 .delete(authenticate ,  authorization(['delete-user' , 'delete-own-user']) , UserController.deleteById)
 router.patch('/users/:id/reset-password' , authenticate ,  authorization(['update-password' , 'update-own-password']) , UserRequest.resetRequestValidator , requestValidator ,  UserController.resetPasword)
 
-// TODO: User Get Single Data & User Delete
 
 
 // Category Router Start From Here
@@ -70,13 +70,15 @@ router.route('/categories/:id')
 
 
 
-// Category Router Start From Here
+// Account Router Start From Here
 router.route('/accounts')
-.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
+.post(authenticate , AccountRequest.createRequestValidator , requestValidator,  AccountController.create)
+.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  AccountController.getAll)
 router.route('/accounts/:id')
-.put(authenticate , CategoryRequest.categoryUpdateRequest , requestValidator, CategoryController.updateByPut)
-.delete(authenticate , CategoryController.deleteById)
+.put(authenticate , AccountRequest.UpdatePatchRequestValidator , requestValidator, AccountController.updateByPut)
+.patch(authenticate , AccountRequest.UpdatePatchRequestValidator , requestValidator, AccountController.updateByPatch)
+.delete(authenticate , AccountController.deleteById)
+.get(authenticate , AccountController.getById)
 
 
 // export for use on index file

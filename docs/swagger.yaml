@@ -25,8 +25,6 @@ tags:
     description: This Tag are handling all Expanses Related route
   - name : Income
     description: This Tag are handling all Income Related route
-  - name : Goal
-    description: This Tag are handling all Goal Permission Related route
   - name : Record
     description: This Tag are handling all Record and Data Analysis Related route
   
@@ -1513,7 +1511,10 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/account'
-              required: [name , account_details , initial_value]
+              required: 
+                - name 
+                - account_details 
+                - initial_value
       responses:
         '201':
           description: Account Created Successfully
@@ -1778,7 +1779,6 @@ paths:
         - $ref: '#/components/parameters/populate'
         - $ref: '#/components/parameters/select'
         - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/goal'
         - $ref: '#/components/parameters/account'
         - $ref: '#/components/parameters/category'
         - $ref: '#/components/parameters/min'
@@ -1812,10 +1812,6 @@ paths:
                           properties:
                             user:
                               $ref : '#/components/schemas/user'
-                        - type: object
-                          properties:
-                            goal:
-                              $ref : '#/components/schemas/goal'
                         - $ref : '#/components/schemas/timesteamp'
                         - type: object
                           properties:
@@ -1873,8 +1869,6 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-                goalId:
-                  $ref: '#/components/schemas/id'
               required: [amount, accountId]
       responses:
         '201':
@@ -1905,8 +1899,6 @@ paths:
                               userId:
                                 $ref: '#/components/schemas/id'
                               accountId:
-                                $ref: '#/components/schemas/id'
-                              goalId:
                                 $ref: '#/components/schemas/id'
                           - $ref : '#/components/schemas/timesteamp'
                 
@@ -1947,8 +1939,6 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-                goalId:
-                  $ref: '#/components/schemas/id'
               required: [amount , userId , accountId]
       responses:
         '201':
@@ -1980,8 +1970,6 @@ paths:
                                 $ref: '#/components/schemas/id'
                               accountId:
                                 $ref: '#/components/schemas/id'
-                              goalId:
-                                $ref: '#/components/schemas/id'
                           - $ref : '#/components/schemas/timesteamp'
                 
         '200':
@@ -2012,8 +2000,6 @@ paths:
                               userId:
                                 $ref: '#/components/schemas/id'
                               accountId:
-                                $ref: '#/components/schemas/id'
-                              goalId:
                                 $ref: '#/components/schemas/id'
                           - $ref : '#/components/schemas/timesteamp'
         '400':
@@ -2052,8 +2038,6 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-                goalId:
-                  $ref: '#/components/schemas/id'
       responses:
         '200':
           description: Expanse Updated Successfully
@@ -2083,8 +2067,6 @@ paths:
                               userId:
                                 $ref: '#/components/schemas/id'
                               accountId:
-                                $ref: '#/components/schemas/id'
-                              goalId:
                                 $ref: '#/components/schemas/id'
                           - $ref : '#/components/schemas/timesteamp'
         '400':
@@ -2353,7 +2335,7 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-              required: [amount , accountId]
+              required: [amount , userId , accountId]
       responses:
         '201':
           description: Income Created Successfully
@@ -2452,7 +2434,6 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-               
       responses:
         '200':
           description: Income Updated Successfully
@@ -2483,7 +2464,6 @@ paths:
                                 $ref: '#/components/schemas/id'
                               accountId:
                                 $ref: '#/components/schemas/id'
-                             
                           - $ref : '#/components/schemas/timesteamp'
         '400':
           $ref: '#/components/responses/400'
@@ -2555,501 +2535,13 @@ paths:
                         properties:
                           _id:
                            $ref: '#/components/schemas/id'
-                      - $ref: '#/components/schemas/income'
+                      - $ref: '#/components/schemas/expanse'
                       - type: object
                         properties:
                           link:
                             type: string
                             format: url
-                            example: /incomes/{incomesId}
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-        '404':
-          $ref: '#/components/responses/404'
-        '400':
-          $ref: '#/components/responses/400'
-  # Goal all EndPoints Start from Here
-  "/goals":
-    get:
-      description: Retrive all Goals according to search params with pagination
-      tags:
-        - Goal
-      security:
-        - bearerAuth: []
-        - RefreshTokenHeader : []
-      parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/sortBy'
-        - $ref: '#/components/parameters/sortType'
-        - $ref: '#/components/parameters/search'
-        - $ref: '#/components/parameters/populate'
-        - $ref: '#/components/parameters/select'
-        - $ref: '#/components/parameters/user'
-        - $ref: '#/components/parameters/status'
-        - $ref: '#/components/parameters/fromdate'
-        - $ref: '#/components/parameters/todate'
-      responses:
-        '200':
-          description: Retrive all Goals according to search params with pagination
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    format: int31
-                    example: 200
-                  message:
-                    type: string
-                    format: string
-                    example: Data Retrive Success
-                  data:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              $ref : '#/components/schemas/id'
-                        - $ref : '#/components/schemas/goal'
-                        - type: object
-                          properties:
-                            user:
-                              $ref : '#/components/schemas/user'
-                        - type: object
-                          properties:
-                            history:
-                              type: array
-                              items:
-                                allOf:
-                                  - type: object
-                                    properties:
-                                      id:
-                                        $ref: '#/components/schemas/id'
-                                  - type: object
-                                    properties:
-                                      amount: 
-                                        type: integer
-                                        example: '10000'
-                                      note:
-                                        type: string
-                                        example: 'Basha khoroch'
-                                      category:
-                                        allOf:
-                                          - $ref: '#/components/schemas/category'
-                                      user:
-                                        allOf:
-                                          - $ref: '#/components/schemas/user'
-                                      account:
-                                        allOf:
-                                          - $ref: '#/components/schemas/account'
-                        - $ref : '#/components/schemas/timesteamp'
-                        - type: object
-                          properties:
-                            link:
-                              type: string
-                              format: url
-                              example: /goals
-                  links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: url
-                        example: /goals/search?q=pink&page=1&limit=10
-                      nextPage:
-                        type: string
-                        format: url
-                        example: /goals/2/search?q=pink&page=2&limit=10
-                      prevPage:
-                        type: string
-                        format: url
-                        example: /goals/1/search?q=test&page=1&limit=10
-                  pagination:
-                    $ref: '#/components/schemas/pagination'
-        '400':
-          $ref: '#/components/responses/400'
-        '500':
-          $ref: '#/components/responses/500'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-    post:
-      description: Create new Goal
-      tags:
-        - Goal
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Goal Request Body
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                target_amount: 
-                  type: integer
-                  example: '10000'
-                saved_amount: 
-                  type: integer
-                  example: '10000'
-                name:
-                  type: string
-                  example: 'Basha khoroch'
-                note:
-                  type: string
-                  example: 'Basha khoroch'
-                status:
-                  type: string
-                  enum : [pending, complete]
-                  example: 'pending'
-                desired_date:
-                  type: string
-                  format: datetime
-                  example: '2023-07-20T02:14:06.058Z'
-                userId:
-                  $ref: '#/components/schemas/id'
-              required: ['name' , amount , target_amount , desired_date]
-      responses:
-        '201':
-          description: Goal Created Successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref : '#/components/schemas/201'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - type: object
-                            properties:
-                              target_amount: 
-                                type: integer
-                                example: '10000'
-                              saved_amount: 
-                                type: integer
-                                example: '10000'
-                              name:
-                                type: string
-                                example: 'Basha khoroch'
-                              note:
-                                type: string
-                                example: 'Basha khoroch'
-                              status:
-                                type: string
-                                enum : [pending, complete]
-                                example: 'pending'
-                              desired_date:
-                                type: string
-                                format: datetime
-                                example: '2023-07-20T02:14:06.058Z'
-                              userId:
-                                $ref: '#/components/schemas/id'
-                          - $ref : '#/components/schemas/timesteamp'
-                
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-  "/goals/{id}":
-    put:
-      description: Update or Create new Goal
-      tags:
-        - Goal
-      security:
-        - bearerAuth: []
-        - RefreshTokenHeader : []
-      parameters:
-        - $ref: '#/components/parameters/id'
-      requestBody:
-        description: Goal Request Body
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                target_amount: 
-                  type: integer
-                  example: '10000'
-                saved_amount: 
-                  type: integer
-                  example: '10000'
-                name:
-                  type: string
-                  example: 'Basha khoroch'
-                note:
-                  type: string
-                  example: 'Basha khoroch'
-                status:
-                  type: string
-                  enum : [pending, complete]
-                  example: 'pending'
-                desired_date:
-                  type: string
-                  format: datetime
-                  example: '2023-07-20T02:14:06.058Z'
-                userId:
-                  $ref: '#/components/schemas/id'
-              required: [amount , target_amount , name , desired_date]
-      responses:
-        '201':
-          description: Goal Created Successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref : '#/components/schemas/201'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - type: object
-                            properties:
-                              target_amount: 
-                                type: integer
-                                example: '10000'
-                              saved_amount: 
-                                type: integer
-                                example: '10000'
-                              name:
-                                type: string
-                                example: 'Basha khoroch'
-                              note:
-                                type: string
-                                example: 'Basha khoroch'
-                              status:
-                                type: string
-                                enum : [pending, complete]
-                                example: 'pending'
-                              desired_date:
-                                type: string
-                                format: datetime
-                                example: '2023-07-20T02:14:06.058Z'
-                              userId:
-                                $ref: '#/components/schemas/id'
-                          - $ref : '#/components/schemas/timesteamp'
-        '200':
-          description: Goal Updated Successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref : '#/components/schemas/200'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - type: object
-                            properties:
-                              amount: 
-                                type: integer
-                                example: '10000'
-                              note:
-                                type: string
-                                example: 'Basha khoroch'
-                              categoryId:
-                                $ref: '#/components/schemas/id'
-                              userId:
-                                $ref: '#/components/schemas/id'
-                              accountId:
-                                $ref: '#/components/schemas/id'
-                          - $ref : '#/components/schemas/timesteamp'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-    patch:
-      description: Update Goal
-      tags:
-        - Goal
-      security:
-        - bearerAuth: []
-        - RefreshTokenHeader : []
-      parameters:
-        - $ref: '#/components/parameters/id'
-      requestBody:
-        description: Goal Request Body
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                target_amount: 
-                  type: integer
-                  example: '10000'
-                saved_amount: 
-                  type: integer
-                  example: '10000'
-                name:
-                  type: string
-                  example: 'Basha khoroch'
-                note:
-                  type: string
-                  example: 'Basha khoroch'
-                status:
-                  type: string
-                  enum : [pending, complete]
-                  example: 'pending'
-                desired_date:
-                  type: string
-                  format: datetime
-                  example: '2023-07-20T02:14:06.058Z'
-                userId:
-                  $ref: '#/components/schemas/id'
-      responses:
-        '200':
-          description: Goal Created Successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref : '#/components/schemas/200'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - type: object
-                            properties:
-                              target_amount: 
-                                type: integer
-                                example: '10000'
-                              saved_amount: 
-                                type: integer
-                                example: '10000'
-                              name:
-                                type: string
-                                example: 'Basha khoroch'
-                              note:
-                                type: string
-                                example: 'Basha khoroch'
-                              status:
-                                type: string
-                                enum : [pending, complete]
-                                example: 'pending'
-                              desired_date:
-                                type: string
-                                format: datetime
-                                example: '2023-07-20T02:14:06.058Z'
-                              userId:
-                                $ref: '#/components/schemas/id'
-                          - $ref : '#/components/schemas/timesteamp'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-    delete:
-      security:
-        - bearerAuth: []
-        - RefreshTokenHeader : []
-      description: Delete Goal
-      tags: [Goal]
-      parameters:
-        - $ref: '#/components/parameters/id'
-      responses:
-        '204':
-          description: Goal Deleted Successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    format: int31
-                    example: 204
-                  message:
-                    type: string
-                    format: string
-                    example: Goal deleted successfully
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-        '404':
-          $ref: '#/components/responses/404'        
-    get:
-      description: 'Get Single Goal All Information'
-      tags: [Goal]
-      security: 
-        - bearerAuth: []
-        
-      parameters: 
-        - $ref:  '#/components/parameters/id'
-        - $ref:  '#/components/parameters/populate'
-        - $ref:  '#/components/parameters/select'
-      responses:
-        '200':
-          description: 'Data Retrive Successully!'
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    format: int32
-                    example: 200
-                  message:
-                    type: string
-                    example: Data Retrive Successully!
-                  data:
-                    allOf:
-                      - type: object
-                        properties:
-                          _id:
-                           $ref: '#/components/schemas/id'
-                      - $ref: '#/components/schemas/goal'
-                      - type: object
-                        properties:
-                          history:
-                            type : array
-                            items:
-                              $ref: '#/components/schemas/expanse'
-                      - $ref: '#/components/schemas/timesteamp'
-                      - type: object
-                        properties:
-                          link:
-                            type: string
-                            format: url
-                            example: /goals/{incomesId}
+                            example: /accounts/{accountId}
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -3109,10 +2601,6 @@ paths:
                         finalcialState:
                           type: string
                           example: 'poor'
-                        goals:
-                          type: array
-                          items:
-                            $ref : '#/components/schemas/goal'
                         
         '401':
           $ref: '#/components/responses/401'
@@ -3129,8 +2617,7 @@ paths:
       description: "Single Users Data Analysis and get financial State"
       tags: [Record]
       security: 
-        - bearerAuth: []
-        
+        - bearerAuth: []        
       parameters: 
         - $ref:  '#/components/parameters/id'
       responses:
@@ -3166,10 +2653,6 @@ paths:
                         items:
                           type: string
                           example: 'Shopping'
-                      goals:
-                        type: array
-                        items:
-                          $ref : '#/components/schemas/goal'
                       finalcialState:
                         type: string
                         example: 'poor'
@@ -3236,10 +2719,6 @@ paths:
                         finalcialState:
                           type: string
                           example: 'poor'
-                        goals:
-                          type: array
-                          items:
-                            $ref : '#/components/schemas/goal'
                         
         '401':
           $ref: '#/components/responses/401'

@@ -1,9 +1,10 @@
 import Role from "../model/Role.js"
 import { generateSortType } from "../utils/Query.js";
 import { notFoundError } from "../utils/Error.js";
-import { generateSlug } from "../utils/Generate.js";
 import PermissionRole from "../model/PermissionRole.js";
 import mongoose from "mongoose";
+import { PermissionLibs } from "./index.js";
+import Permission from "../model/Permission.js";
 
 
 
@@ -20,13 +21,18 @@ const create = async (name, permissions) => {
     role.name = name;
     await role.save(); 
 
-    if (permissions.length > 0) {
+    if (permissions && permissions.length > 0) {
       for (const item of permissions) {
         if(mongoose.Types.ObjectId.isValid(item)){  
             const data = await PermissionRole.findOne({
             $and: [{ roleId: role._id }, { permissionId: item }],
             }).exec();
-            if (!data) {
+
+            const dataCheck = await Permission.findById(item).exec();
+
+            console.log(dataCheck, 'datacheck')
+
+            if (!data && dataCheck !== null) {
                 const permissionRole = new PermissionRole();
                 permissionRole.roleId = role._id;
                 permissionRole.permissionId = item;
@@ -36,7 +42,7 @@ const create = async (name, permissions) => {
       }
     }
 
-    const permissionIds = await PermissionRole.find({ roleId: role._id }).distinct('permissionId').exec();
+    const permissionIds = await PermissionLibs.getPermissionsBasedOnRoleId(role._id);
 
     return { role: role.toJSON(), permission: permissionIds };
   } catch (error) {
@@ -65,32 +71,56 @@ const getAll = async ({search, sortBy ,sortType, limit , page}) => {
     // count total roles based on search query params only, not apply on pagination
     let totalItems = await countRole(filter) ;
 
+    // get permissions for associated roles
+    const updatedRoles = await Promise.all(roles.map(async (role) => {
+        const permissionIds = await PermissionLibs.getPermissionsBasedOnRoleId(role._id);
+        
+        let permissions = await Promise.all(permissionIds.map(async (id) => {
+          const data = await Permission.findById(id).select(['name', '_id', 'createdAt', 'updatedAt']).exec();
+          return {
+            ...(data ? data._doc : {}), 
+          };
+        }));
+
+        return {
+          ...(role && role._doc ? { ...role._doc } : {}),
+          permissions,
+        };
+    }));
+
     return {
-        roles : roles.length > 0 ? roles : [],
+        updatedRoles,
         totalItems
     }
 }
 
 
 // Update or Create Role to DB
-const updateByPut = async (id,name,permissions) => {
-    let role = await Role.findById(id);
-    let state;
+const updateByPatch = async (id,name,permissions=[]) => {
+  const updatedRole = await Role.findById(id).exec();
+  if(!updatedRole) throw new Error('Role Not Found!')
+  updatedRole.name = name ? name : updatedRole.name;
+  await updatedRole.save();
 
-    if(!role){
-        const data = await Role.findOne({name}).exec();
-        if(data) throw notFoundError('Role already exits!')
-        role = new Role();
-        role.name = name;
-        role.permissions = permissions;
-        state = 'create'
-    }else{
-      role.name = name; 
-      role.permissions = permissions;
-      state = 'update'
-    }
-    await role.save();
-    return {role : role._doc , state};
+  let permissionsArray = [];
+  const permissionIds = await PermissionLibs.getPermissionsBasedOnRoleId(id);
+  const updatedPermissions = await PermissionLibs.updatePermissionsByRoleId(id, permissionIds, permissions);
+
+  if(updatedPermissions.length > 0){
+    permissionsArray = await Promise.all(updatedPermissions.map(async(item) => {
+      const data = await Permission.findById(item).select(['name', '_id', 'createdAt', 'updatedAt']).exec();
+          return {
+              ...(data ? data._doc : {}), 
+          };
+      })
+  );
+  }
+
+
+  return {
+    updatedRole,
+    permissionsArray
+  }
 }
 
 
@@ -103,6 +133,7 @@ const deleteById = async (id) => {
       if(role.name === 'admin' || role.name === 'super-admin' || role.name === 'user') 
       throw new Error('Can not Delete this Role')
       else {
+        await PermissionRole.deleteMany({roleId : id});
         await role.deleteOne()
         return true;
       }
@@ -122,7 +153,7 @@ const bulkDelete = () => {
 export default {
     create,
     getAll,
-    updateByPut,
+    updateByPatch,
     deleteById,
     bulkDelete,
     countRole

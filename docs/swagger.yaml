@@ -301,6 +301,8 @@ paths:
                   type: string
                   format: jwt
                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+              required:
+                - access_token
              
       responses:
         '200':
@@ -343,7 +345,6 @@ paths:
               allOf:
                 - $ref : '#/components/schemas/user'
               required:
-                - password
                 - username
                 - email
       responses:
@@ -450,7 +451,6 @@ paths:
       tags: [User]
       security:
         - bearerAuth: []
-        
       parameters:
         - $ref: '#/components/parameters/id'
       requestBody:
@@ -510,8 +510,7 @@ paths:
       description: 'Delete User Account as well as all data asociated with account'
       tags: [User]
       security:
-        - bearerAuth: []
-        
+        - bearerAuth: []    
       parameters:
         - $ref: '#/components/parameters/id'
       responses:
@@ -543,7 +542,6 @@ paths:
       tags: [User]
       security: 
         - bearerAuth: []
-        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -615,8 +613,7 @@ paths:
       description: Password Update for Auth user
       tags: [User]
       security:
-        - bearerAuth: []
-        
+        - bearerAuth: []  
       parameters:
         - $ref: '#/components/parameters/id'
       requestBody:
@@ -637,6 +634,7 @@ paths:
               required: 
                 - password
                 - old_password
+                - confirm_password
       responses:
         '200':
           description: Success
@@ -888,7 +886,6 @@ paths:
         - Permission
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/limit'
@@ -1216,70 +1213,6 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   "/roles/{id}":
-    put:
-      description: Update or Create new Role
-      tags:
-        - Role
-      security:
-        - bearerAuth: []
-        - RefreshTokenHeader : []
-      parameters:
-        - $ref: '#/components/parameters/id'
-      requestBody:
-        description: Permission Request Body
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  format: string
-                  example: delete-user
-              required: [name]
-      responses:
-        '201':
-          description: Role Created Successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref : '#/components/schemas/201'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - $ref : '#/components/schemas/permission'
-                          - $ref : '#/components/schemas/timesteamp'
-        '200':
-          description: Role Updated Successfully
-          content:
-            application/json:
-              schema:
-               allOf:
-                  - $ref : '#/components/schemas/201'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - type: object
-                            properties:
-                              id:
-                                $ref : '#/components/schemas/id'
-                          - $ref : '#/components/schemas/permission'
-                          - $ref : '#/components/schemas/timesteamp'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
     patch:
       description: Update Role
       tags:
@@ -1300,7 +1233,12 @@ paths:
                   type: string
                   format: string
                   example: delete-user
-              required: [name]
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    format: string
+                    example: delete-user
       responses:
         '200':
           description: Role Updated Successfully
@@ -1522,7 +1460,6 @@ paths:
       tags: [Account]
       security: 
         - bearerAuth: []
-        
       parameters: 
         - $ref:  '#/components/parameters/id'
         - $ref:  '#/components/parameters/populate'
@@ -1679,7 +1616,6 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/account'
-              required: [name , account_details , initial_value]
       responses:
         '200':
           description: Account Updated Successfully
@@ -1709,7 +1645,6 @@ paths:
     delete:
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       description: Delete Account
       tags: [Account]
       parameters:
@@ -1832,7 +1767,6 @@ paths:
         - Expanse
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       requestBody:
         description: Expanse Request Body
         content:
@@ -1854,7 +1788,7 @@ paths:
                   $ref: '#/components/schemas/id'
                 goalId:
                   $ref: '#/components/schemas/id'
-              required: [amount , userId , accountId]
+              required: [amount, accountId]
       responses:
         '201':
           description: Expanse Created Successfully
@@ -2077,7 +2011,6 @@ paths:
     delete:
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       description: Delete Expanse
       tags: [Expanse]
       parameters:
@@ -2263,7 +2196,7 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-              required: [amount , userId , accountId]
+              required: [amount , accountId]
       responses:
         '201':
           description: Income Created Successfully
@@ -2333,7 +2266,7 @@ paths:
                   $ref: '#/components/schemas/id'
                 accountId:
                   $ref: '#/components/schemas/id'
-              required: [amount , userId , accountId]
+              required: [amount , accountId]
       responses:
         '201':
           description: Income Created Successfully
@@ -2476,7 +2409,6 @@ paths:
     delete:
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       description: Delete Income
       tags: [Income]
       parameters:
@@ -2668,7 +2600,6 @@ paths:
         - Goal
       security:
         - bearerAuth: []
-        - RefreshTokenHeader : []
       requestBody:
         description: Goal Request Body
         content:
@@ -2698,7 +2629,7 @@ paths:
                   example: '2023-07-20T02:14:06.058Z'
                 userId:
                   $ref: '#/components/schemas/id'
-              required: [amount , target_amount , saved_amount , desired_date]
+              required: ['name' , amount , target_amount , desired_date]
       responses:
         '201':
           description: Goal Created Successfully
@@ -2788,7 +2719,7 @@ paths:
                   example: '2023-07-20T02:14:06.058Z'
                 userId:
                   $ref: '#/components/schemas/id'
-              required: [amount , target_amount , saved_amount , desired_date]
+              required: [amount , target_amount , name , desired_date]
       responses:
         '201':
           description: Goal Created Successfully
@@ -2906,7 +2837,6 @@ paths:
                   example: '2023-07-20T02:14:06.058Z'
                 userId:
                   $ref: '#/components/schemas/id'
-              required: [amount , target_amount , saved_amount , desired_date]
       responses:
         '200':
           description: Goal Created Successfully

@@ -4,8 +4,9 @@ import PermissionController from "../api/v1/controller/permission/index.js";
 import CategoryController from "../api/v1/controller/category/index.js";
 import RoleController from "../api/v1/controller/role/index.js";
 const router = express.Router();
-import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest} from "../request/index.js"
+import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest} from "../request/index.js"
 import {requestValidator , authenticate} from "../middleware/index.js"
+import authorization from "../middleware/authorization.js";
 
 // API Health Route
 router.get('/health' , (_req,res) => res.status(200).json({code : 200 , message : 'API Health is ok!'}))
@@ -19,6 +20,8 @@ router.get('/reset-password/:id/:token', AuthController.VerifyRsestLink)
 router.post('/reset-password/:id/:token', AuthRequest.resetRequestValidator, requestValidator,  AuthController.ResetPassword)
 router.post('/refresh', AuthController.Refresh)
 
+
+
 // Permission Router Start From Here
 router.route('/permissions')
 .post(authenticate , PermissionRequest.permissionCreateRequest , requestValidator,  PermissionController.create)
@@ -31,10 +34,10 @@ router.route('/permissions/:id')
 
 // Role Router Start From Here
 router.route('/roles')
-.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  RoleController.create)
+.post(authenticate , authorization(['create-expanse']) ,  RoleRequest.roleCreateRequest , requestValidator,  RoleController.create)
 .get(authenticate , QueryRequest.basicQueryParams , requestValidator,  RoleController.getAll)
 router.route('/roles/:id')
-.put(authenticate , RoleController.updateByPut)
+.patch(authenticate , RoleRequest.roleUpdateRequest , requestValidator, RoleController.updateByPatch)
 .delete(authenticate , RoleController.deleteById)
 
 

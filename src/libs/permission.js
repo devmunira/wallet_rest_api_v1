@@ -44,9 +44,27 @@ const getAll = async ({search, sortBy ,sortType, limit , page}) => {
 }
 
 
-// Get Single Permissions according to filter from DB
-const getById = () => {
+// Get All Permission of a specific Role
+const getPermissionsBasedOnRoleId = async (roleId) => {
+   try {
+    return  await PermissionRole.find({ roleId }).distinct('permissionId')
+   } catch (error) {
+    console.log('Error' , error)
+   }
+}
 
+
+
+// Get Single Permissions according to filter from DB
+const getPermissionsNameBasedOnRoleId = async (roleId) => {
+    const permissionIds =  await PermissionRole.find({ roleId }).distinct('permissionId').exec();
+
+    const permissions = await Promise.all( permissionIds.map(async (item) => {
+        const permisision = await Permission.findById(item).distinct('name').exec();
+        return permisision;
+    }));
+
+    return permissions ? [...permissions] : []
 }
 
 
@@ -96,16 +114,42 @@ const bulkDelete = () => {
 
 }
 
+// Function to update permissions
+async function updatePermissionsByRoleId(roleId , permissionIds, newPermissions) {
+    const updatedPermissions = permissionIds.length > 0 ? [...permissionIds] : [];
 
+    if(newPermissions && newPermissions?.length > 0){
+        permissionIds = permissionIds.map((item) => item.toString());
+
+        await Promise.all(newPermissions.map(async (newPermission) => {
+            const permission = await Permission.findById(newPermission).exec();
+            if(!permission) throw new Error('Invalid Permission Id!');
+            else{
+                if (!permissionIds.includes(newPermission)) {
+                    updatedPermissions.push(newPermission)
+                    const newItem = new PermissionRole();
+                    newItem.roleId = roleId;
+                    newItem.permissionId = newPermission;
+                    await newItem.save();
+                  }
+            }
+          }))
+
+    }
+
+    return updatedPermissions;
+}
 
 
 export default {
     create,
     getAll,
-    getById,
+    getPermissionsBasedOnRoleId,
     updateByPatch,
     updateByPut,
     deleteById,
     bulkDelete,
-    countPermission
+    countPermission,
+    updatePermissionsByRoleId,
+    getPermissionsNameBasedOnRoleId
 }

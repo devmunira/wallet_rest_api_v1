@@ -1,16 +1,14 @@
 import {
     create,
     getAll,
-    updateByPut,
+    updateByPatch,
     deleteById,
-    bulkDelete
 } from "./RoleController.js"
 
 
 export default {
     create,
     getAll,
-    updateByPut,
+    updateByPatch,
     deleteById,
-    bulkDelete
 }

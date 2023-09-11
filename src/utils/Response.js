@@ -9,7 +9,18 @@ const transformData = (items = [] , url = '') => {
     })
 }
 
+// populate response data
+const transformPopulatedData = (items = [] , url = '') => {
+    return items.length > 0 && items.map((item) => {
+        return {
+            ...item,
+            links : `${process.env.API_BASE_URL}${url}`,
+        }
+    })
+}
+
 export {
-    transformData
+    transformData,
+    transformPopulatedData
 }
 

@@ -5,8 +5,8 @@ import {
     updateByPatch,
     updateByPut,
     deleteById,
-    bulkDelete
-} from "./PermissionController.js"
+    resetPasword
+} from "./UserController.js"
 
 
 export default {
@@ -16,5 +16,5 @@ export default {
     updateByPatch,
     updateByPut,
     deleteById,
-    bulkDelete
+    resetPasword
 }

@@ -9,8 +9,18 @@ const generateQueryString = (path , query) => {
     return `${path}?${q}`
 }
 
+// create selected item array for select specific items from db
+const generateSelectItems = (array,defaultArray) => {
+    let selectedArray = defaultArray;
+    if(array.length > 0){
+        selectedArray = array.split(',').map((item) => item.trim());
+    }
+    return selectedArray;
+}
+
 
 export {
     generateQueryString,
     generateSortType,
+    generateSelectItems
 }

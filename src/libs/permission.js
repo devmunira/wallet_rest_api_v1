@@ -131,7 +131,7 @@ async function updatePermissionsByRoleId(roleId , permissionIds, newPermissions)
                     newItem.roleId = roleId;
                     newItem.permissionId = newPermission;
                     await newItem.save();
-                  }
+                }
             }
           }))
 

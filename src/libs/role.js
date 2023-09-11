@@ -38,6 +38,7 @@ const create = async (name, permissions) => {
                 permissionRole.permissionId = item;
                 await permissionRole.save();
             }
+
         }
       }
     }

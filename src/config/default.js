@@ -5,6 +5,8 @@ const SORTTYPE = 'asc';
 const SORTBY = 'updatedAt';
 const SEARCH = '';
 const IDQUERY = '';
+const SELECT = [];
+const POPULATE = [];
 
 
 export {
@@ -13,5 +15,7 @@ export {
     SORTBY,
     SORTTYPE,
     SEARCH,
-    IDQUERY
+    IDQUERY,
+    SELECT,
+    POPULATE
 }

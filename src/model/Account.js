@@ -18,12 +18,10 @@ const accountSchema = new Schema({
         require : true,
         type: mongoose.Types.ObjectId(),
         ref : 'User',
-        unique: true,
     },
 },{timestamps : true});
 
 
 
 const Account = model('Account' , accountSchema)
-module.exports = Account
-
+export default Account

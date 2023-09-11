@@ -18,7 +18,9 @@ const verifyJWT = ({JWT_SECRET = process.env.JWT_SECRET ,token , algorithm = "HS
     try {
        const payload = JWT.verify(token,JWT_SECRET , {algorithms : [algorithm]})
        if(!isAfter(new Date() , payload.exp) && payload.issuedIp !== ip.address()) throw unAuthenticateError('Invalid Token!');
-       else return payload
+       else {
+        return payload
+       }
     } catch (error) {
         throw unAuthenticateError('Invalid Token!')
     }

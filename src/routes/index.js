@@ -3,10 +3,13 @@ import AuthController from "../api/v1/controller/auth/index.js";
 import PermissionController from "../api/v1/controller/permission/index.js";
 import CategoryController from "../api/v1/controller/category/index.js";
 import RoleController from "../api/v1/controller/role/index.js";
+import UserController from "../api/v1/controller/user/index.js";
 const router = express.Router();
-import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest} from "../request/index.js"
+import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest, UserRequest} from "../request/index.js"
 import {requestValidator , authenticate} from "../middleware/index.js"
 import authorization from "../middleware/authorization.js";
+
+
 
 // API Health Route
 router.get('/health' , (_req,res) => res.status(200).json({code : 200 , message : 'API Health is ok!'}))
@@ -24,22 +27,37 @@ router.post('/refresh', AuthController.Refresh)
 
 // Permission Router Start From Here
 router.route('/permissions')
-.post(authenticate , PermissionRequest.permissionCreateRequest , requestValidator,  PermissionController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  PermissionController.getAll)
+.post(authenticate ,authorization(['create-permission']) , PermissionRequest.permissionCreateRequest , requestValidator,  PermissionController.create)
+.get(authenticate , authorization(['read-permission']) , QueryRequest.basicQueryParams , requestValidator,  PermissionController.getAll)
 router.route('/permissions/:id')
-.put(authenticate , PermissionController.updateByPut)
-.delete(authenticate , PermissionController.deleteById)
+.put(authenticate , authorization(['update-permission']) , PermissionRequest.permissionUpdatePUTRequest , requestValidator, PermissionController.updateByPut)
+.delete(authenticate ,authorization(['delete-permission']) , PermissionController.deleteById)
 
 
 
 // Role Router Start From Here
 router.route('/roles')
-.post(authenticate , authorization(['create-expanse']) ,  RoleRequest.roleCreateRequest , requestValidator,  RoleController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  RoleController.getAll)
+.post(authenticate , authorization(['create-role']) ,  RoleRequest.roleCreateRequest , requestValidator,  RoleController.create)
+.get(authenticate , authorization(['read-role']) , QueryRequest.basicQueryParams , requestValidator,  RoleController.getAll)
 router.route('/roles/:id')
-.patch(authenticate , RoleRequest.roleUpdateRequest , requestValidator, RoleController.updateByPatch)
-.delete(authenticate , RoleController.deleteById)
+.patch(authenticate , authorization(['update-role' , 'update-own-role']) ,  RoleRequest.roleUpdateRequest , requestValidator, RoleController.updateByPatch)
+.delete(authenticate , authorization(['delete-role']) ,  RoleController.deleteById)
 
+
+
+
+// Role Router Start From Here
+router.route('/users')
+.post(authenticate,   authorization(['create-user']) ,   UserRequest.createRequestValidator , requestValidator, UserController.create)
+.get(authenticate ,   authorization(['read-user']) , QueryRequest.basicQueryParams , requestValidator,  UserController.getAll)
+router.route('/users/:id')
+.patch(authenticate ,  authorization(['update-user' , 'update-own-user']) , UserRequest.UpdatePatchRequestValidator , requestValidator, UserController.updateByPatch)
+.put(authenticate ,  authorization(['update-user' , 'update-own-user']) , UserRequest.UpdatePutRequestValidator , requestValidator, UserController.updateByPut)
+.get(authenticate ,  authorization(['single-user' , 'single-own-user']), UserController.getById)
+.delete(authenticate ,  authorization(['delete-user' , 'delete-own-user']) , UserController.deleteById)
+router.patch('/users/:id/reset-password' , authenticate ,  authorization(['update-password' , 'update-own-password']) , UserRequest.resetRequestValidator , requestValidator ,  UserController.resetPasword)
+
+// TODO: User Get Single Data & User Delete
 
 
 // Category Router Start From Here
@@ -47,7 +65,17 @@ router.route('/categories')
 .post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
 .get(authenticate , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
 router.route('/categories/:id')
-.put(authenticate , CategoryController.updateByPut)
+.put(authenticate , CategoryRequest.categoryUpdateRequest , requestValidator, CategoryController.updateByPut)
+.delete(authenticate , CategoryController.deleteById)
+
+
+
+// Category Router Start From Here
+router.route('/accounts')
+.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
+.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
+router.route('/accounts/:id')
+.put(authenticate , CategoryRequest.categoryUpdateRequest , requestValidator, CategoryController.updateByPut)
 .delete(authenticate , CategoryController.deleteById)
 
 

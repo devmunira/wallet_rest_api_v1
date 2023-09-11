@@ -383,6 +383,8 @@ paths:
         - $ref: '#/components/parameters/sortType'
         - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/role'
+        - $ref: '#/components/parameters/select'
+        - $ref: '#/components/parameters/populate'
       responses:
         '200':
           description: Retrive all users according to search params with pagination
@@ -446,6 +448,91 @@ paths:
         '403':
           $ref: '#/components/responses/403'
   "/users/{id}":
+    put:
+      description: Profile Update for Auth user
+      tags: [User]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: muniraweb
+                email:
+                  type: string
+                  format: email
+                  example: muniraweb@gmail.com
+                phone:
+                  type: string
+                  example: "01881959920"
+              required:
+                - username
+                - email
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  message:
+                    type: string
+                    example: Profile Updated Successfully Completed.
+                  data:
+                    allOf:
+                     - $ref: '#/components/schemas/user'
+                     - $ref: '#/components/schemas/timesteamp'
+                     - type: object
+                       properties:
+                        link:
+                          type: string
+                          format: url
+                          example: /users/{userId}
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 201
+                  message:
+                    type: string
+                    example: Profile Created Successfully Completed.
+                  data:
+                    allOf:
+                     - $ref: '#/components/schemas/user'
+                     - $ref: '#/components/schemas/timesteamp'
+                     - type: object
+                       properties:
+                        link:
+                          type: string
+                          format: url
+                          example: /users/{userId}           
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500' 
+        '401':
+          $ref: '#/components/responses/401' 
+        '403':
+          $ref: '#/components/responses/403'
     patch:
       description: Profile Update for Auth user
       tags: [User]

@@ -24,6 +24,29 @@ const permissionCreateRequest  = [
 
 
 
+
+// Sign Request Body Validator
+const permissionUpdatePUTRequest  = [
+    body('name')
+    .trim()
+    .notEmpty()
+    .bail()
+    .isLength({min : 3 , max:20})
+    .bail()
+    .isString()
+    .bail()
+    .custom(async (val , {req}) => {
+        const permission = await Permission.findOne({ name : val , _id : {$ne : req.params.id} });
+        if (permission) {
+            return Promise.reject('Permission is already Added!');
+        }
+        return true
+    }),
+];
+
+
+
 export default {
-    permissionCreateRequest
+    permissionCreateRequest,
+    permissionUpdatePUTRequest
 }

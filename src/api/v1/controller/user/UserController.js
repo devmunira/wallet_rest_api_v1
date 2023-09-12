@@ -58,7 +58,26 @@ const getAll = tryCatch(async (req,res,next) => {
 
 // Get Single Permissions according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
+    let {select,populate} = req.query;
+    let {id} = req.params
 
+    // set default search params   
+    select  = select || SELECT
+    populate = populate || POPULATE
+ 
+    let user = await UserLibs.getById({select,populate,id});
+ 
+    // generate final responses data
+    let result = {
+         code : 200,
+         message: 'Successfully data Retrived!',
+         data  : {
+            ...user,
+            links : `${process.env.API_BASE_URL}${req.url}`,
+         }
+     }
+ 
+     return res.status(200).json(result)
 })
 
 
@@ -107,7 +126,14 @@ const updateByPut = tryCatch(async (req,res,next) => {
 
 // Delete Single Permission by Id
 const deleteById = tryCatch(async (req,res,next) => {
-
+    const {id} = req.params;
+    const isDeleted = await UserLibs.deleteById(id);
+    if(isDeleted){
+        res.status(204).json({
+            code : 204,
+            message : 'User Deleted Successfully!',
+        })
+    }
 });
 
 
@@ -115,7 +141,6 @@ const deleteById = tryCatch(async (req,res,next) => {
 // Delete Multiple Permission by Id
 const resetPasword = tryCatch(async (req,res,next) => {
     const user = await User.findById(req.params.id).exec();
-
     const hash = await bcrypt.hash(req.body.password , 10);
     user.password =  hash;
     user.refresh_token = ''

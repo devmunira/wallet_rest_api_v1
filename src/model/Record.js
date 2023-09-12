@@ -1,38 +1,31 @@
-import mongoose, {Schema , model} from "mongoose"
-import { GoalSubSchema, UserSubSchema } from "./SubSchema";
+import  mongoose, {Schema , model} from "mongoose"
 
 
-const reportSchema = new Schema({
-    user : {
-        require : true,
-        type: UserSubSchema,
-        default : {}
-    },
-    goals : {
-        require : true,
-        type: [GoalSubSchema],
-        default : []
+const recordSchema = new Schema({
+    userId : {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
     },
     totalIncome : {
-        require : false,
         type: Number,
     },
     totalExpanse : {
-        require : false,
+        type: Number,
+    },
+    totalSavings : {
         type: Number,
     },
     expanse_category : {
-        require : false,
         type: [String],
     },
     state : {
-        require : true,
+        type: String,
         default: 'middle'
     },
 },{timestamps : true});
 
 
 
-const Report = model('Report' , reportSchema)
-module.exports = Report
+const Record = model('Record' , recordSchema)
 
+export default Record

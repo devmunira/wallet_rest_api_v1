@@ -5,11 +5,12 @@
 //     }
 // ]
 
-
-// TODO: User Get Single Data & User Delete
-// TODO: Account Get Single Data & User Delete
-// TODO: Validate All PUT Method
+// TODO: Validate All PUT Method User, Account , Expanse
 // TODO: Add Try Catch
 // TODO: Authorization
 // TODO: Data Add
 // TODO: Set Default Value
+// TODO: Id data none then link remove
+// TODO: Update YAML
+// TODO: Update Notions
+// TODO: Update Validation check for POST, PUT , PATCH

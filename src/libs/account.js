@@ -1,6 +1,8 @@
 import { notFoundError, serverError } from '../utils/Error.js';
 import Account from '../model/Account.js';
 import { generateSelectItems, generateSortType } from '../utils/Query.js';
+import Expanse from '../model/Expanse.js';
+import Income from '../model/Income.js';
 
 
 
@@ -28,6 +30,42 @@ const count = (data) => {
     return Account.count(data);
 }
 
+
+
+// get Single Item
+const getById = async ({select,populate,id}) => {
+    let selectedColums = generateSelectItems(select,['_id','name','account_details','initial_value','userId','createdAt' , 'updatedAt']);
+
+    let populateRelations = generateSelectItems(populate,['expanse','income','user']);
+    
+
+    // send request to db with all query params
+    let account = await Account.findById(id)
+    .select(selectedColums)
+    .populate(populateRelations.includes('user') ? {
+        path   : 'userId',
+        select : 'username , email , phone , roleId, createdAt , updatedAt , _id',
+    } : '');
+
+    account = account._doc;
+
+    if(populateRelations.includes('expanse')){
+        let expanses = await Expanse.find({accountId : id}).exec();
+        account = {...account, expanses}
+    }
+    if(populateRelations.includes('income')){
+        let incomes = await Income.find({accountId : id}).exec();
+        account = {...account , incomes}
+    }
+
+    if(account){
+        return account
+    }else{
+        throw notFoundError()
+    }
+
+
+}
 
 // Get All Roles according to filter from DB
 const getAll = async ({search, sortBy ,sortType, limit , page,user,select,populate}) => {
@@ -113,7 +151,8 @@ const deleteById = async (id) => {
     if(!account) {
         throw notFoundError();
     }else{
-        // TODO: Delete Expanse & Incomes
+        await Expanse.deleteMany({accountId: id}).exec()
+        await Income.deleteMany({accountId: id}).exec()
         await account.deleteOne()
         return true;
     }
@@ -125,5 +164,6 @@ export default {
     getAll,
     updateByPatch,
     updateByPUT,
-    deleteById
+    deleteById,
+    getById
 }

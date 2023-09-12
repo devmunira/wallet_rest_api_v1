@@ -4,6 +4,7 @@ import {notFoundHandellar} from "./globalError.js"
 import {globalErrorHandellar} from "./globalError.js"
 import { requestValidator } from "./requestValidator.js";
 import authenticate from "./authenticate.js";
+import authorization from "./authorization.js"
 
 export {
     middleware,
@@ -11,5 +12,6 @@ export {
     notFoundHandellar,
     globalErrorHandellar,
     requestValidator,
-    authenticate
+    authenticate,
+    authorization
 }

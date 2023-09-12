@@ -1783,6 +1783,8 @@ paths:
         - $ref: '#/components/parameters/category'
         - $ref: '#/components/parameters/min'
         - $ref: '#/components/parameters/max'
+        - $ref: '#/components/parameters/fromdate'
+        - $ref: '#/components/parameters/todate'
       responses:
         '200':
           description: Retrive all EXpanses according to search params with pagination
@@ -2178,6 +2180,8 @@ paths:
         - $ref: '#/components/parameters/category'
         - $ref: '#/components/parameters/min'
         - $ref: '#/components/parameters/max'
+        - $ref: '#/components/parameters/fromdate'
+        - $ref: '#/components/parameters/todate'
       responses:
         '200':
           description: Retrive all Incomes according to search params with pagination
@@ -2559,10 +2563,11 @@ paths:
       tags: [Record]
       security: 
         - bearerAuth: []
-        
       parameters: 
         - $ref:  '#/components/parameters/fromdate'
         - $ref:  '#/components/parameters/todate'
+        - $ref:  '#/components/parameters/limit'
+        - $ref:  '#/components/parameters/page'
       responses:
         '200':
           description: 'Data Retrive Successully!'
@@ -2593,11 +2598,6 @@ paths:
                         totalexpanse:
                           type: integer
                           example: 100000
-                        topFiveExpansesCategory:
-                          type: array
-                          items:
-                            type: string
-                            example: 'Shopping'
                         finalcialState:
                           type: string
                           example: 'poor'
@@ -2620,6 +2620,8 @@ paths:
         - bearerAuth: []        
       parameters: 
         - $ref:  '#/components/parameters/id'
+        - $ref:  '#/components/parameters/fromdate'
+        - $ref:  '#/components/parameters/todate'
       responses:
         '200':
           description: 'Data Retrive Successully!'
@@ -2926,14 +2928,14 @@ components:
         example: '64f825a8e1e529afedd53695'
     min:
       in: query
-      name: min-price
+      name: min_price
       description: Get data based on minimum value
       schema:
         type: integer
         example: 1000
     max:
       in: query
-      name: max-price
+      name: max_price
       description: Get data based on maximum value
       schema:
         type: integer

@@ -61,12 +61,6 @@ const updateByPut = tryCatch(async (req,res,next) => {
 })
 
 
-// Update Category on DB
-const updateByPatch = tryCatch(async (req,res,next) => {
-
-})
-
-
 // Delete Single Category by Id
 const deleteById = tryCatch(async (req,res,next) => {
     const {id} = req.params;

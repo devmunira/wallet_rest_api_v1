@@ -1,23 +1,23 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export const UserSubSchema = new Schema({
     username : {
-        require : true,
+        required : true,
         type: String,
         unique: true,
     },
     email:{
         type: String,
-        require : true,
+        required : true,
         unique: true
     },
     phone : {
         type: String,
-        require : false,
+        required : false,
     },
-    roleId : {
-        type: mongoose.Types.ObjectId(),
-        ref : 'Role',
+    UserId : {
+        type: mongoose.Types.ObjectId,
+        ref : 'User',
     },
 })
 

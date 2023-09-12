@@ -1,32 +1,31 @@
-import {AccountLibs} from "../../../../libs/index.js"
+import {ExpanseLibs} from "../../../../libs/index.js"
 import tryCatch from "../../../../middleware/tryCatchError.js";
-import { IDQUERY, LIMIT, PAGE, POPULATE, SEARCH, SELECT, SORTBY, SORTTYPE } from "../../../../config/default.js";
+import { IDQUERY, LIMIT, MAXPRICE, MINPRICE, PAGE, POPULATE, SEARCH, SELECT, SORTBY, SORTTYPE } from "../../../../config/default.js";
 import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
 
-// Create Account to DB
+// Create Expanse to DB
 const create = tryCatch(async (req,res,next) => {
     // Getting All Request Body Params
-    let {name,account_details,initial_value,userId} = req.body
+    let {categoryId,userId,accountId,amount,note} = req.body
+
     userId = userId ? userId : req.user._id
-
-    // Create Account on DB
-    const {account} = await AccountLibs.createAccount({name,account_details,initial_value,userId});
-
+    // Create Expanse on DB
+    const {expanse} = await ExpanseLibs.createExpanse({categoryId,userId,accountId,amount,note});
     // Send Responses
     res.status(200).json({
         code : 200,
-        mesaage : 'Account Created Completed Successfully!',
+        mesaage : 'Expanse Created Completed Successfully!',
         data : {
-        ...account._doc,
+        ...expanse._doc,
         },
     })
 })
 
-// Get All Accounts according to filter from DB
+// Get All Expanses according to filter from DB
 const getAll = tryCatch(async (req,res,next) => {
-    let {limit,page,sortType,sortBy,search,user, select , populate} = req.query;
+    let {limit,page,sortType,sortBy,search,user,select,populate,account,category,min_price,max_price,fromdate,todate} = req.query;
 
     // set default search params   
     limit = +limit || LIMIT
@@ -35,10 +34,14 @@ const getAll = tryCatch(async (req,res,next) => {
     sortType = sortType || SORTTYPE
     search = search || SEARCH
     user = user || IDQUERY
+    category = category || IDQUERY
+    account = account || IDQUERY
     select  = select || SELECT
     populate = populate || POPULATE
+    min_price = min_price || MINPRICE
+    max_price = max_price || MAXPRICE
  
-    let {accounts , totalItems} = await AccountLibs.getAll({search, sortBy ,sortType, limit , page,user,select,populate});
+    let {expanses , totalItems} = await ExpanseLibs.getAll({limit,page,sortType,sortBy,search,user,select,populate,account,category,min_price,max_price,fromdate,todate});
  
     // count total Page
     let totalPage = Math.ceil(totalItems / limit)
@@ -47,7 +50,7 @@ const getAll = tryCatch(async (req,res,next) => {
     let result = {
          code : 200,
          message: 'Successfully data Retrived!',
-         data  : accounts.length > 0 ?  transformData(accounts , req.url) : [], 
+         data  : expanses.length > 0 ?  transformData(expanses , req.url) : [], 
          links : generateAllDataHateoasLinks(req.url,req._parsedUrl.pathname,page,totalPage,req.query),
          pagination : generatePagination(totalPage,page,totalItems,limit)
      }
@@ -56,7 +59,7 @@ const getAll = tryCatch(async (req,res,next) => {
 })
 
 
-// Get Single Accounts according to filter from DB
+// Get Single Expanses according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
     let {select,populate} = req.query;
     let {id} = req.params
@@ -65,14 +68,14 @@ const getById = tryCatch(async (req,res,next) => {
     select  = select || SELECT
     populate = populate || POPULATE
  
-    let account = await AccountLibs.getById({select,populate,id});
+    let expanse = await ExpanseLibs.getById({select,populate,id});
  
     // generate final responses data
     let result = {
          code : 200,
          message: 'Successfully data Retrived!',
          data  : {
-            ...account,
+            ...expanse,
             links : `${process.env.API_BASE_URL}${req.url}`,
          }
      }
@@ -82,22 +85,22 @@ const getById = tryCatch(async (req,res,next) => {
 
 
 
-// Update Account on DB
+// Update Expanse on DB
 const updateByPatch = async (req,res,next) => {
     try {
         const { id } = req.params;
 
-        let {name,account_details,initial_value,userId} = req.body;
+        let {categoryId,userId,accountId,amount,note} = req.body
 
         userId = userId ? userId : req.user._id
 
-        const account = await AccountLibs.updateByPatch(id,name,account_details,initial_value,userId)
+        const expanse = await ExpanseLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
 
         return res.status(200).json({
             code : 200,
-            message : 'Account Updated Successfully!',
+            message : 'Expanse Updated Successfully!',
             data : {
-                ...account,
+                ...expanse,
             }
         });
     } catch (error) {
@@ -107,34 +110,34 @@ const updateByPatch = async (req,res,next) => {
 
 
 
-// Update or Create Account to DB
+// Update or Create Expanse to DB
 const updateByPut = tryCatch(async (req,res,next) => {
-    let {name,account_details,initial_value,userId} = req.body;
+    let {categoryId,userId,accountId,amount,note} = req.body;
     const {id} = req.params;
 
     userId = userId ? userId : req.user._id
 
-    const {account, state} = await AccountLibs.updateByPUT(id,name,account_details,initial_value,userId)
+    const {expanse, state} = await ExpanseLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
 
     res.status(state === 'create' ? 201 : 200).json({
         code : state === 'create' ? 201 : 200,
-        message : `Account ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
+        message : `Expanse ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
         data : {
-            ...account,
+            ...expanse,
         }
     })
 })
 
 
 
-// Delete Single Account by Id
+// Delete Single Expanse by Id
 const deleteById = tryCatch(async (req,res,next) => {
     const {id} = req.params;
-    const isDeleted = await AccountLibs.deleteById(id);
+    const isDeleted = await ExpanseLibs.deleteById(id);
     if(isDeleted){
         res.status(204).json({
             code : 204,
-            message : 'Account & Associated Incomes , Expanses are Deleted Successfully!',
+            message : 'Expanse Deleted Successfully!',
         })
     }
 

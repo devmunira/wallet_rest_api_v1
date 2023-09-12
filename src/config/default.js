@@ -7,6 +7,10 @@ const SEARCH = '';
 const IDQUERY = '';
 const SELECT = [];
 const POPULATE = [];
+const FROMDATE = null;
+const TODATE = new Date();
+const MINPRICE = 1;
+const MAXPRICE = null;
 
 
 export {
@@ -17,5 +21,9 @@ export {
     SEARCH,
     IDQUERY,
     SELECT,
-    POPULATE
+    POPULATE,
+    FROMDATE,
+    TODATE,
+    MINPRICE,
+    MAXPRICE
 }

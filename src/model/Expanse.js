@@ -9,25 +9,21 @@ const expanseSchema = new Schema({
     amount : {
         require : true,
         type: Number,
+        require : true,
     },
     userId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'User',
     },
     categoryId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'Category',
-    },
-    goalId : {
-        require : true,
-        type: mongoose.Types.ObjectId(),
-        ref : 'Goal',
     },
     accountId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'Account',
     },
 },{timestamps : true});
@@ -35,5 +31,5 @@ const expanseSchema = new Schema({
 
 
 const Expanse = model('Expanse' , expanseSchema)
-module.exports = Expanse
 
+export default Expanse

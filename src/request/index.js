@@ -5,6 +5,7 @@ import RoleRequest from "./roleRequest.js"
 import QueryRequest from "./queryRequest.js"
 import UserRequest from "./userRequest.js"
 import AccountRequest from "./accountRequest.js"
+import ExpanseRequest from "./expanseRequest.js"
 
 export {
     AuthRequest,
@@ -13,5 +14,6 @@ export {
     RoleRequest,
     QueryRequest,
     UserRequest,
-    AccountRequest
+    AccountRequest,
+    ExpanseRequest
 }

@@ -7,6 +7,9 @@ import ip from "ip"
 import { DEFAULTPASS } from '../config/auth.js';
 import Role from '../model/Role.js';
 import { generateSelectItems, generateSortType } from '../utils/Query.js';
+import Expanse from '../model/Expanse.js';
+import Income from '../model/Income.js';
+import Account from '../model/Account.js';
 
 
 
@@ -99,6 +102,47 @@ const getAll = async ({search, sortBy ,sortType, limit , page,role,select,popula
     }
 }
 
+
+// get Single Item
+const getById = async ({select,populate,id}) => {
+    let selectedColums = generateSelectItems(select,['_id','username','roleId','email','phone','createdAt' , 'updatedAt']);
+
+    let populateRelations = generateSelectItems(populate,['expanse','income','role','account']);
+    
+
+    // send request to db with all query params
+    let user = await User.findById(id)
+    .select(selectedColums)
+    .populate(populateRelations.includes('role') ? {
+        path   : 'roleId',
+        select : 'name , createdAt , updatedAt , _id',
+    } : '');
+
+    user = user._doc;
+
+    if(populateRelations.includes('expanse')){
+        let expanses = await Expanse.find({userId : id}).exec();
+        user = {...user, expanses}
+    }
+    if(populateRelations.includes('income')){
+        let incomes = await Income.find({userId : id}).exec();
+        user = {...user , incomes}
+    }
+
+    if(populateRelations.includes('account')){
+        let accounts = await Account.find({userId : id}).exec();
+        user = {...user , accounts}
+    }
+
+    if(user){
+        return user
+    }else{
+        throw notFoundError()
+    }
+
+
+}
+
 // Update Single User Via PATCH Request
 const updateByPatch = async (id,username,email,phone,roleId) => {
     const updateUser = await User.findById(id).exec();
@@ -147,11 +191,29 @@ const updateByPUT = async (id,username,email,phone,roleId,password,confirm_passw
 }
 
 
+// Delete Single Role by Id
+const deleteById = async (id) => {
+    const user = await User.findOne({_id : id}).exec();
+    if(!user) {
+        throw notFoundError();
+    }else{
+        await Expanse.deleteMany({userId: id}).exec()
+        await Income.deleteMany({userId: id}).exec()
+        await Account.deleteMany({userId: id}).exec()
+        await user.deleteOne()
+        return true;
+    }
+};
+
+
+
 
 export default {
     createUser,
     updateToken,
     getAll,
     updateByPatch,
-    updateByPUT
+    updateByPUT,
+    getById,
+    deleteById
 }

@@ -12,17 +12,17 @@ const incomeSchema = new Schema({
     },
     userId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'User',
     },
     categoryId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'Category',
     },
     accountId : {
         require : true,
-        type: mongoose.Types.ObjectId(),
+        type: mongoose.Types.ObjectId,
         ref : 'Account',
     },
 },{timestamps : true});
@@ -30,5 +30,6 @@ const incomeSchema = new Schema({
 
 
 const Income = model('Income' , incomeSchema)
-module.exports = Income
 
+
+export  default Income

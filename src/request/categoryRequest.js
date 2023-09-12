@@ -16,7 +16,6 @@ const categoryCreateRequest  = [
         if (category) {
             return Promise.reject('Category is already Added!');
         }
-
         return true;
     }),
 ];

@@ -5,6 +5,9 @@ import PermissionLibs from "./permission.js"
 import CategoryLibs from "./category.js"
 import RoleLibs from "./role.js"
 import AccountLibs from "./account.js"
+import ExpanseLibs from "./expanse.js"
+import IncomeLibs from "./income.js"
+import RecordLibs from "./record.js"
 
 export {
     AuthLibs,
@@ -13,5 +16,8 @@ export {
     PermissionLibs,
     CategoryLibs,
     RoleLibs,
-    AccountLibs
+    AccountLibs,
+    ExpanseLibs,
+    IncomeLibs,
+    RecordLibs
 }

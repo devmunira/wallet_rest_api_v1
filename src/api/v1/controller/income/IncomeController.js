@@ -1,4 +1,4 @@
-import {IncomeLibs} from "../../../../libs/index.js"
+import {ExpanseLibs, IncomeLibs} from "../../../../libs/index.js"
 import tryCatch from "../../../../middleware/tryCatchError.js";
 import { IDQUERY, LIMIT, MAXPRICE, MINPRICE, PAGE, POPULATE, SEARCH, SELECT, SORTBY, SORTTYPE, TODATE } from "../../../../config/default.js";
 import { transformData } from "../../../../utils/Response.js";
@@ -10,7 +10,7 @@ const create = tryCatch(async (req,res,next) => {
     // Getting All Request Body Params
     let {categoryId,userId,accountId,amount,note} = req.body
 
-    userId = userId ? userId : req.user._id
+    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
     // Create Income on DB
     const {income} = await IncomeLibs.createIncome({categoryId,userId,accountId,amount,note});
     // Send Responses
@@ -92,7 +92,7 @@ const updateByPatch = async (req,res,next) => {
 
         let {categoryId,userId,accountId,amount,note} = req.body
 
-        userId = userId ? userId : req.user._id
+        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
         const income = await IncomeLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
 
@@ -115,7 +115,7 @@ const updateByPut = tryCatch(async (req,res,next) => {
     let {categoryId,userId,accountId,amount,note} = req.body;
     const {id} = req.params;
 
-    userId = userId ? userId : req.user._id
+    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
     const {income, state} = await IncomeLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
 

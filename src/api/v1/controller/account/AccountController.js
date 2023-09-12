@@ -4,12 +4,18 @@ import { IDQUERY, LIMIT, PAGE, POPULATE, SEARCH, SELECT, SORTBY, SORTTYPE } from
 import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
+import { userRelationDataCheck } from "../../../../utils/Error.js";
 
 // Create Account to DB
 const create = tryCatch(async (req,res,next) => {
     // Getting All Request Body Params
-    let {name,account_details,initial_value,userId} = req.body
-    userId = userId ? userId : req.user._id
+    let {name,account_details,initial_value,userId} = req.body;
+
+    if(userId){
+        await userRelationDataCheck(userId);
+    }else{
+        userId = req.user._id 
+    }
 
     // Create Account on DB
     const {account} = await AccountLibs.createAccount({name,account_details,initial_value,userId});
@@ -89,7 +95,11 @@ const updateByPatch = async (req,res,next) => {
 
         let {name,account_details,initial_value,userId} = req.body;
 
-        userId = userId ? userId : req.user._id
+        if(userId){
+            await userRelationDataCheck(userId);
+        }else{
+            userId = req.user._id 
+        }
 
         const account = await AccountLibs.updateByPatch(id,name,account_details,initial_value,userId)
 
@@ -112,7 +122,11 @@ const updateByPut = tryCatch(async (req,res,next) => {
     let {name,account_details,initial_value,userId} = req.body;
     const {id} = req.params;
 
-    userId = userId ? userId : req.user._id
+    if(userId){
+        await userRelationDataCheck(userId);
+    }else{
+        userId = req.user._id 
+    }
 
     const {account, state} = await AccountLibs.updateByPUT(id,name,account_details,initial_value,userId)
 

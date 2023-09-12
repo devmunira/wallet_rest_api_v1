@@ -1,7 +1,25 @@
-import { notFoundError, serverError } from '../utils/Error.js';
+import { accountRelationDataCheck, categoryRelationDataCheck, notFoundError, serverError, userRelationDataCheck } from '../utils/Error.js';
 import Expanse from '../model/Expanse.js';
 import { generateSelectItems, generateSortType } from '../utils/Query.js';
+import { serve } from 'swagger-ui-express';
 
+
+// relational data check
+const checkRelationalData = async (userId, accountId, categoryId,authUserId) => {
+    if(userId){
+        await userRelationDataCheck(userId);
+    }else{
+        userId = authUserId 
+    }
+
+    if(accountId){
+        await accountRelationDataCheck(accountId);
+    }
+
+    if(categoryId){
+        await categoryRelationDataCheck(categoryId);
+    }
+}
 
 
 // Create or Register New User
@@ -32,7 +50,8 @@ const count = (data) => {
 
 // Get All Roles according to filter from DB
 const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,account,category,min_price,max_price,fromdate,todate}) => {
-    // populate sortType val for query
+    try {
+        // populate sortType val for query
     let sortTypeForDB = generateSortType(sortType);
 
     let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
@@ -63,97 +82,79 @@ const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,ac
 
         console.log('filter' , filter)
       }
-    // send request to db with all query params
-   let expanses = await Expanse.find(filter)
-    .select(selectedColums)
-    .sort({[sortBy] : sortTypeForDB})
-    .skip(page * limit - limit)
-    .limit(limit)
-    .populate(populateRelations.includes('user') ? {
-        path   : 'userId',
-        select : 'username , email , phone , roleId, createdAt , updatedAt',
-    } : '')
-    .populate(populateRelations.includes('category') ? {
-        path   : 'categoryId',
-        select : 'name , slug , createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('account') ? {
-        path   : 'accountId',
-        select : 'name , account_details createdAt , updatedAt , _id',
-    } : '')
-    
-    // count total roles based on search query params only, not apply on pagination
-    let totalItems = await count(filter) ;
+        // send request to db with all query params
+    let expanses = await Expanse.find(filter)
+        .select(selectedColums)
+        .sort({[sortBy] : sortTypeForDB})
+        .skip(page * limit - limit)
+        .limit(limit)
+        .populate(populateRelations.includes('user') ? {
+            path   : 'userId',
+            select : 'username , email , phone , roleId, createdAt , updatedAt',
+        } : '')
+        .populate(populateRelations.includes('category') ? {
+            path   : 'categoryId',
+            select : 'name , slug , createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('account') ? {
+            path   : 'accountId',
+            select : 'name , account_details createdAt , updatedAt , _id',
+        } : '')
+        
+        // count total roles based on search query params only, not apply on pagination
+        let totalItems = await count(filter) ;
 
-    return {
-        expanses,
-        totalItems
+        return {
+            expanses,
+            totalItems
+        }
+    } catch (error) {
+        throw serverError(error)
     }
 }
 
 // get Single Item
 const getById = async ({select,populate,id}) => {
-    let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
+    try {
+        let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
 
-    let populateRelations = generateSelectItems(populate,['user','category','account']);
-    
+        let populateRelations = generateSelectItems(populate,['user','category','account']);
+        
 
-    // send request to db with all query params
-    let expanse = await Expanse.findById(id)
-    .select(selectedColums)
-    .populate(populateRelations.includes('user') ? {
-        path   : 'userId',
-        select : 'username , email , phone , roleId,createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('category') ? {
-        path   : 'categoryId',
-        select : 'name , slug , createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('account') ? {
-        path   : 'accountId',
-        select : 'name , account_details createdAt , updatedAt , _id',
-    } : '')
+        // send request to db with all query params
+        let expanse = await Expanse.findById(id)
+        .select(selectedColums)
+        .populate(populateRelations.includes('user') ? {
+            path   : 'userId',
+            select : 'username , email , phone , roleId,createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('category') ? {
+            path   : 'categoryId',
+            select : 'name , slug , createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('account') ? {
+            path   : 'accountId',
+            select : 'name , account_details createdAt , updatedAt , _id',
+        } : '')
 
-    if(expanse){
-        return expanse._doc
-    }else{
-        throw notFoundError()
+        if(expanse){
+            return expanse._doc
+        }else{
+            throw notFoundError()
+        }
+    } catch (error) {
+        throw serverError(error)
     }
-
 
 }
 
 // Update Single User Via PATCH Request
 const updateByPatch = async ({id,categoryId,userId,accountId,amount,note}) => {
 
-    const expanse = await Expanse.findById(id).exec();
-    if(!expanse) throw new Error('Expanse Not Found!')
+    try {
+        const expanse = await Expanse.findById(id).exec();
+        if(!expanse) throw new Error('Expanse Not Found!')
 
-    expanse.amount = amount ? amount : expanse.amount;
-    expanse.accountId = accountId ? accountId : expanse.accountId;
-    expanse.categoryId = categoryId ? categoryId : expanse.categoryId;
-    expanse.userId = userId ? userId : expanse.userId;
-    expanse.note = note ? note : expanse.note;
-    await expanse.save();
-
-    delete expanse._doc.id
-    delete expanse._doc.__v
-    return expanse._doc
-}
-
-
-
-// Update Single User Via PATCH Request
-const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
-    const expanse = await Expanse.findById(id).exec();
-
-    if(!expanse) {
-       const {expanse} =  await createExpanse({categoryId,userId,accountId,amount,note})
-        return {
-            expanse : expanse._doc, 
-            state : 'create'
-        }
-    }else{
         expanse.amount = amount ? amount : expanse.amount;
         expanse.accountId = accountId ? accountId : expanse.accountId;
         expanse.categoryId = categoryId ? categoryId : expanse.categoryId;
@@ -161,24 +162,60 @@ const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
         expanse.note = note ? note : expanse.note;
         await expanse.save();
 
-        return {
-            expanse : expanse._doc,
-            state : 'update'
-        }
-    }  
+        delete expanse._doc.id
+        delete expanse._doc.__v
+        return expanse._doc
+    } catch (error) {
+        throw serverError(error)
+    }
+}
+
+
+
+// Update Single User Via PATCH Request
+const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
+    try {
+        const expanse = await Expanse.findById(id).exec();
+
+        if(!expanse) {
+        const {expanse} =  await createExpanse({categoryId,userId,accountId,amount,note})
+            return {
+                expanse : expanse._doc, 
+                state : 'create'
+            }
+        }else{
+            expanse.amount = amount ? amount : expanse.amount;
+            expanse.accountId = accountId ? accountId : expanse.accountId;
+            expanse.categoryId = categoryId ? categoryId : expanse.categoryId;
+            expanse.userId = userId ? userId : expanse.userId;
+            expanse.note = note ? note : expanse.note;
+            await expanse.save();
+
+            return {
+                expanse : expanse._doc,
+                state : 'update'
+            }
+        } 
+    } catch (error) {
+        throw serverError(error)
+    } 
 }
 
 
 
 // Delete Single Role by Id
 const deleteById = async (id) => {
-    const expanse = await Expanse.findOne({_id : id}).exec();
-    if(!expanse) {
-        throw notFoundError();
-    }else{
-        
-        await expanse.deleteOne()
-        return true;
+    try {
+        const expanse = await Expanse.findOne({_id : id}).exec();
+        if(!expanse) {
+            throw notFoundError();
+        }else{
+            
+            await expanse.deleteOne()
+            return true;
+        }
+    } catch (error) {
+        throw serverError(error)
     }
 };
 
@@ -189,5 +226,6 @@ export default {
     updateByPatch,
     updateByPUT,
     deleteById,
-    getById
+    getById,
+    checkRelationalData
 }

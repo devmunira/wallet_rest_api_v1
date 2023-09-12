@@ -15,13 +15,10 @@ import Account from '../model/Account.js';
 
 // Create or Register New User
 const createUser = async ({username,email,password,confirm_password,phone,roleId}) => {
-
-    const hashPassword = await bcrypt.hash(password ? password : DEFAULTPASS , 10);
-
-    
     try {
-        const userRole = await Role.findOne({'name' : 'user'}).exec();
+        const hashPassword = await bcrypt.hash(password ? password : DEFAULTPASS , 10);
 
+        const userRole = await Role.findOne({'name' : 'user'}).exec();
         if(!roleId && !userRole) throw notFoundError('Please First Set a Role or Add a Role Named user!');
 
         const user = new User({
@@ -51,13 +48,17 @@ const createUser = async ({username,email,password,confirm_password,phone,roleId
 
 // Update Token for verify Email
 const updateToken = async (usernameOremail,OTP) => {
-    const user = await User.findOne({$or: [{ username: usernameOremail }, { email: usernameOremail }]});
-    if(!user) throw notFoundError();
-    
-    user.verification_token = OTP
-    user.expiredAt = addMinutes(new Date() , 5)
-    user.save();
-    return user;
+    try {
+        const user = await User.findOne({$or: [{ username: usernameOremail }, { email: usernameOremail }]});
+        if(!user) throw notFoundError();
+        
+        user.verification_token = OTP
+        user.expiredAt = addMinutes(new Date() , 5)
+        user.save();
+        return user;
+    } catch (error) {
+      throw serverError(error)  
+    }
 }
 
 
@@ -69,110 +70,93 @@ const count = (data) => {
 
 // Get All Roles according to filter from DB
 const getAll = async ({search, sortBy ,sortType, limit , page,role,select,populate}) => {
-    // populate sortType val for query
-    let sortTypeForDB = generateSortType(sortType);
-    let selectedColums = generateSelectItems(select,['_id','username','email','phone','roleId' , 'createdAt' , 'updatedAt']);
+    try {
+        // populate sortType val for query
+        let sortTypeForDB = generateSortType(sortType);
+        let selectedColums = generateSelectItems(select,['_id','username','email','phone','roleId' , 'createdAt' , 'updatedAt']);
 
-    let populateRelations = generateSelectItems(populate,['role','account','expanse','income','goal']);
-    
-    // destructured filter options for query
-    let filter = {}
-    if(search) filter.name = {$regex : search , $options : 'i'}
-    if(role) filter.roleId = role;
+        let populateRelations = generateSelectItems(populate,['role','account','expanse','income','goal']);
+        
+        // destructured filter options for query
+        let filter = {}
+        if(search) filter.name = {$regex : search , $options : 'i'}
+        if(role) filter.roleId = role;
 
-    // send request to db with all query params
-    let users = await User.find(filter)
-    .select(selectedColums)
-    .sort({[sortBy] : sortTypeForDB})
-    .skip(page * limit - limit)
-    .limit(limit)
-    .populate(populateRelations.includes('role') ? {
-        path   : 'roleId',
-        select : 'name',
-    } : '')
-    
-    // count total roles based on search query params only, not apply on pagination
-    let totalItems = await count(filter) ;
+        // send request to db with all query params
+        let users = await User.find(filter)
+        .select(selectedColums)
+        .sort({[sortBy] : sortTypeForDB})
+        .skip(page * limit - limit)
+        .limit(limit)
+        .populate(populateRelations.includes('role') ? {
+            path   : 'roleId',
+            select : 'name',
+        } : '')
+        
+        // count total roles based on search query params only, not apply on pagination
+        let totalItems = await count(filter) ;
 
-    console.log(users , 'users')
+        console.log(users , 'users')
 
-    return {
-        users,
-        totalItems
+        return {
+            users,
+            totalItems
+        } 
+    } catch (error) {
+       throw serverError(error) 
     }
 }
 
 
 // get Single Item
 const getById = async ({select,populate,id}) => {
-    let selectedColums = generateSelectItems(select,['_id','username','roleId','email','phone','createdAt' , 'updatedAt']);
+    try {
+        let selectedColums = generateSelectItems(select,['_id','username','roleId','email','phone','createdAt' , 'updatedAt']);
 
-    let populateRelations = generateSelectItems(populate,['expanse','income','role','account']);
+        let populateRelations = generateSelectItems(populate,['expanse','income','role','account']);
+        
     
-
-    // send request to db with all query params
-    let user = await User.findById(id)
-    .select(selectedColums)
-    .populate(populateRelations.includes('role') ? {
-        path   : 'roleId',
-        select : 'name , createdAt , updatedAt , _id',
-    } : '');
-
-    user = user._doc;
-
-    if(populateRelations.includes('expanse')){
-        let expanses = await Expanse.find({userId : id}).exec();
-        user = {...user, expanses}
+        // send request to db with all query params
+        let user = await User.findById(id)
+        .select(selectedColums)
+        .populate(populateRelations.includes('role') ? {
+            path   : 'roleId',
+            select : 'name , createdAt , updatedAt , _id',
+        } : '');
+    
+        user = user._doc;
+    
+        if(populateRelations.includes('expanse')){
+            let expanses = await Expanse.find({userId : id}).exec();
+            user = {...user, expanses}
+        }
+        if(populateRelations.includes('income')){
+            let incomes = await Income.find({userId : id}).exec();
+            user = {...user , incomes}
+        }
+    
+        if(populateRelations.includes('account')){
+            let accounts = await Account.find({userId : id}).exec();
+            user = {...user , accounts}
+        }
+    
+        if(user){
+            return user
+        }else{
+            throw notFoundError()
+        }
+     
+    } catch (error) {
+       throw serverError(error) 
     }
-    if(populateRelations.includes('income')){
-        let incomes = await Income.find({userId : id}).exec();
-        user = {...user , incomes}
-    }
-
-    if(populateRelations.includes('account')){
-        let accounts = await Account.find({userId : id}).exec();
-        user = {...user , accounts}
-    }
-
-    if(user){
-        return user
-    }else{
-        throw notFoundError()
-    }
-
 
 }
 
 // Update Single User Via PATCH Request
 const updateByPatch = async (id,username,email,phone,roleId) => {
-    const updateUser = await User.findById(id).exec();
-    if(!updateUser) throw new Error('User Not Found!')
-    updateUser.username = username ? username : updateUser.username;
-    updateUser.email = email ? email : updateUser.email;
-    updateUser.phone = phone ? phone : updateUser.phone;
-    updateUser.roleId = roleId ? roleId : updateUser.roleId;
-    await updateUser.save();
-    delete updateUser._doc.password
-    delete updateUser._doc.refresh_token
-    delete updateUser._doc.id
-    delete updateUser._doc.__v
-    return updateUser._doc
-}
-
-
-
-// Update Single User Via PATCH Request
-const updateByPUT = async (id,username,email,phone,roleId,password,confirm_password) => {
-    const updateUser = await User.findById(id).exec();
-
-    if(!updateUser) {
-       const {user, accessToken} =  await createUser({username,email,password,confirm_password,phone,roleId})
-        return {
-            user : user._doc, 
-            accessToken,
-            state : 'create'
-        }
-    }else{
+    try {
+        const updateUser = await User.findById(id).exec();
+        if(!updateUser) throw new Error('User Not Found!')
         updateUser.username = username ? username : updateUser.username;
         updateUser.email = email ? email : updateUser.email;
         updateUser.phone = phone ? phone : updateUser.phone;
@@ -182,26 +166,65 @@ const updateByPUT = async (id,username,email,phone,roleId,password,confirm_passw
         delete updateUser._doc.refresh_token
         delete updateUser._doc.id
         delete updateUser._doc.__v
-        return {
-            user : updateUser._doc,
-            accessToken : '',
-            state : 'update'
-        }
-    }  
+        return updateUser._doc
+    } catch (error) {
+        throw serverError(error)
+    }
+}
+
+
+
+// Update Single User Via PATCH Request
+const updateByPUT = async (id,username,email,phone,roleId,password,confirm_password) => {
+    try {
+        const updateUser = await User.findById(id).exec();
+
+        if(!updateUser) {
+            if(!username) throw new Error('Username is required!')
+            if(!email) throw new Error('Email is required!')
+            const {user, accessToken} =  await createUser({username,email,password,confirm_password,phone,roleId})
+            return {
+                user : user._doc, 
+                accessToken,
+                state : 'create'
+            }
+        }else{
+            updateUser.username = username ? username : updateUser.username;
+            updateUser.email = email ? email : updateUser.email;
+            updateUser.phone = phone ? phone : updateUser.phone;
+            updateUser.roleId = roleId ? roleId : updateUser.roleId;
+            await updateUser.save();
+            delete updateUser._doc.password
+            delete updateUser._doc.refresh_token
+            delete updateUser._doc.id
+            delete updateUser._doc.__v
+            return {
+                user : updateUser._doc,
+                accessToken : '',
+                state : 'update'
+            }
+        } 
+    } catch (error) {
+        throw serverError(error)
+    } 
 }
 
 
 // Delete Single Role by Id
 const deleteById = async (id) => {
-    const user = await User.findOne({_id : id}).exec();
-    if(!user) {
-        throw notFoundError();
-    }else{
-        await Expanse.deleteMany({userId: id}).exec()
-        await Income.deleteMany({userId: id}).exec()
-        await Account.deleteMany({userId: id}).exec()
-        await user.deleteOne()
-        return true;
+    try {
+        const user = await User.findOne({_id : id}).exec();
+        if(!user) {
+            throw notFoundError();
+        }else{
+            await Expanse.deleteMany({userId: id}).exec()
+            await Income.deleteMany({userId: id}).exec()
+            await Account.deleteMany({userId: id}).exec()
+            await user.deleteOne()
+            return true;
+        }
+    } catch (error) {
+       throw serverError(error) 
     }
 };
 

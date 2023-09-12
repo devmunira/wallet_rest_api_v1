@@ -866,7 +866,7 @@ paths:
           $ref: '#/components/responses/403'
         '500':
           $ref: '#/components/responses/500'
-  "/category/{id}":
+  "/categories/{id}":
     put:
       description: Update or Create new Category
       tags:

@@ -38,8 +38,6 @@ const getSingleUserDataAnalysis = async (req,res,next) => {
         let {fromdate,todate} = req.query;
         let {userId} = req.params;
         let {data} = await RecordLibs.getSingleUserData({fromdate,todate,userId});
-
-        
     
         // generate final responses data
         let result = {

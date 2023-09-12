@@ -34,6 +34,7 @@ const count = (data) => {
 
 // get Single Item
 const getById = async ({select,populate,id}) => {
+   try {
     let selectedColums = generateSelectItems(select,['_id','name','account_details','initial_value','userId','createdAt' , 'updatedAt']);
 
     let populateRelations = generateSelectItems(populate,['expanse','income','user']);
@@ -64,63 +65,75 @@ const getById = async ({select,populate,id}) => {
         throw notFoundError()
     }
 
+   } catch (error) {
+    throw serverError(error)
+   }
 
 }
 
 // Get All Roles according to filter from DB
 const getAll = async ({search, sortBy ,sortType, limit , page,user,select,populate}) => {
-    // populate sortType val for query
-    let sortTypeForDB = generateSortType(sortType);
-    let selectedColums = generateSelectItems(select,['_id','name','account_details','userId','initial_value', 'createdAt' , 'updatedAt']);
-
-    let populateRelations = generateSelectItems(populate,['user','expanse','income']);
-    
-    // destructured filter options for query
-    let filter = {}
-    if(search) filter.name = {$regex : search , $options : 'i'}
-    if(user) filter.userId = user;
-
-    // send request to db with all query params
-    let accounts = await Account.find(filter)
-    .select(selectedColums)
-    .sort({[sortBy] : sortTypeForDB})
-    .skip(page * limit - limit)
-    .limit(limit)
-    .populate(populateRelations.includes('user') ? {
-        path   : 'userId',
-        select : 'username , email , phone , roleId',
-    } : '')
-    
-    // count total roles based on search query params only, not apply on pagination
-    let totalItems = await count(filter) ;
-
-    return {
-        accounts,
-        totalItems
-    }
+   try {
+     // populate sortType val for query
+     let sortTypeForDB = generateSortType(sortType);
+     let selectedColums = generateSelectItems(select,['_id','name','account_details','userId','initial_value', 'createdAt' , 'updatedAt']);
+ 
+     let populateRelations = generateSelectItems(populate,['user','expanse','income']);
+     
+     // destructured filter options for query
+     let filter = {}
+     if(search) filter.name = {$regex : search , $options : 'i'}
+     if(user) filter.userId = user;
+ 
+     // send request to db with all query params
+     let accounts = await Account.find(filter)
+     .select(selectedColums)
+     .sort({[sortBy] : sortTypeForDB})
+     .skip(page * limit - limit)
+     .limit(limit)
+     .populate(populateRelations.includes('user') ? {
+         path   : 'userId',
+         select : 'username , email , phone , roleId',
+     } : '')
+     
+     // count total roles based on search query params only, not apply on pagination
+     let totalItems = await count(filter) ;
+ 
+     return {
+         accounts,
+         totalItems
+     }
+   } catch (error) {
+    throw serverError(error)
+   }
 }
 
 // Update Single User Via PATCH Request
 const updateByPatch = async (id,name,account_details,initial_value,userId) => {
-    const account = await Account.findById(id).exec();
-    if(!account) throw new Error('Account Not Found!')
+   try {
+        const account = await Account.findById(id).exec();
+        if(!account) throw new Error('Account Not Found!')
 
-    account.name = name ? name : account.name;
-    account.account_details = account_details ? account_details : account.account_details;
-    account.initial_value = initial_value ? initial_value : account.initial_value;
-    account.userId = userId ? userId : account.userId;
-    await account.save();
+        account.name = name ? name : account.name;
+        account.account_details = account_details ? account_details : account.account_details;
+        account.initial_value = initial_value ? initial_value : account.initial_value;
+        account.userId = userId ? userId : account.userId;
+        await account.save();
 
-    
-    delete account._doc.id
-    delete account._doc.__v
-    return account._doc
+        
+        delete account._doc.id
+        delete account._doc.__v
+        return account._doc
+   } catch (error) {
+        throw serverError(error)
+   }
 }
 
 
 
 // Update Single User Via PATCH Request
 const updateByPUT = async (id,name,account_details,initial_value,userId) => {
+   try {
     const account = await Account.findById(id).exec();
 
     if(!account) {
@@ -140,13 +153,17 @@ const updateByPUT = async (id,name,account_details,initial_value,userId) => {
             account : account._doc,
             state : 'update'
         }
-    }  
+    }
+   } catch (error) {
+    throw serverError(error)
+   }  
 }
 
 
 
 // Delete Single Role by Id
 const deleteById = async (id) => {
+   try {
     const account = await Account.findOne({_id : id}).exec();
     if(!account) {
         throw notFoundError();
@@ -156,6 +173,9 @@ const deleteById = async (id) => {
         await account.deleteOne()
         return true;
     }
+   } catch (error) {
+    throw serverError(error)
+   }
 };
 
 

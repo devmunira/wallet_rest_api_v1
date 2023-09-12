@@ -1,7 +1,8 @@
 import Category from "./../model/Category.js"
 import { generateSortType } from "../utils/Query.js";
-import { notFoundError } from "../utils/Error.js";
+import { badRequestError, notFoundError, serverError } from "../utils/Error.js";
 import { generateSlug } from "../utils/Generate.js";
+import Expanse from "./../model/Expanse.js"
 
 
 
@@ -12,16 +13,21 @@ const countCategory = (data) => {
 
 // Create Category to DB
 const create = async (name) => {
+   try {
     const category = new Category();
     category.name = name;
     category.slug = generateSlug(name);
     await category.save();
     return category._doc;
+   } catch (error) {
+    throw serverError(error)
+   }
 }
 
 // Get All Categorys according to filter from DB
 const getAll = async ({search, sortBy ,sortType, limit , page}) => {
-    // populate sortType val for query
+    try {
+        // populate sortType val for query
     let sortTypeForDB = generateSortType(sortType);
     
     // destructured filter options for query
@@ -42,11 +48,15 @@ const getAll = async ({search, sortBy ,sortType, limit , page}) => {
         categories : categories.length > 0 ? categories : [],
         totalItems
     }
+    } catch (error) {
+        throw serverError(error)
+    }
 }
 
 
 // Update or Create Category to DB
 const updateByPut = async (id,name) => {
+   try {
     let category = await Category.findById(id);
     let state;
 
@@ -64,31 +74,32 @@ const updateByPut = async (id,name) => {
     }
     await category.save();
     return {category : category._doc , state};
+   } catch (error) {
+    throw serverError(error)
+   }
 }
 
 
 // Delete Single Category by Id
 const deleteById = async (id) => {
-    const category = await Category.findOne({_id : id}).exec();
-    if(!category) {
-        throw notFoundError();
-    }else{
-      /** 
-       * TODO: All Expanse , Incomes  will be uncategoried
-      */
-      await category.deleteOne()
-      return true;
+    try {
+        const category = await Category.findOne({_id : id}).exec();
+        if(!category) {
+            throw notFoundError();
+        }else if(category._doc.name === 'uncategorized'){
+            throw notFoundError('This Category can not deleted!')
+        }else{
+        // update all income and expanse category to uncategorized
+        await Expanse.updateMany({categoryId : id} , {categoryId : '64fb25f7088d859c8c08bcec'}).exec();
+        await Income.updateMany({categoryId : id} , {categoryId : '64fb25f7088d859c8c08bcec'}).exec();
+
+        await category.deleteOne()
+        return true;
+    }
+    } catch (error) {
+        throw serverError(error)
     }
 };
-
-
-
-// Delete Multiple Category by Id
-const bulkDelete = () => {
-
-}
-
-
 
 
 export default {
@@ -96,6 +107,5 @@ export default {
     getAll,
     updateByPut,
     deleteById,
-    bulkDelete,
     countCategory
 }

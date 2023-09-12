@@ -17,7 +17,6 @@ const mailTransporter = (_req,_res,next) => {
     });
     return transporter;
    } catch (err) {
-    console.log(err)
       let error = new Error(err)
       error.status = 400,
       next(err)
@@ -34,7 +33,6 @@ const sendEmailForEmailVerify = async (email,username,userId,code) => {
                 message: 'For Sending Mail you must send required Information!'
             }]})
         const transporter = mailTransporter();
-        console.log(transporter)
         const mailOptions = {
             from: process.env.SMTP_USER,
             to: email,
@@ -52,7 +50,6 @@ const sendEmailForEmailVerify = async (email,username,userId,code) => {
         await transporter.sendMail(mailOptions)
         return true;
     } catch (error) {
-        console.log(error)
         throw serverError(error.message)
     }
 }

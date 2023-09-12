@@ -61,10 +61,6 @@ const updateByPut = tryCatch(async (req,res,next) => {
 })
 
 
-// Update Permission on DB
-const updateByPatch = tryCatch(async (req,res,next) => {
-
-})
 
 
 // Delete Single Permission by Id

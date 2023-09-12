@@ -9,8 +9,8 @@ import { generatePagination } from "../../../../utils/Pagination.js";
 const create = tryCatch(async (req,res,next) => {
     // Getting All Request Body Params
     let {categoryId,userId,accountId,amount,note} = req.body
+    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
-    userId = userId ? userId : req.user._id
     // Create Expanse on DB
     const {expanse} = await ExpanseLibs.createExpanse({categoryId,userId,accountId,amount,note});
     // Send Responses
@@ -92,7 +92,7 @@ const updateByPatch = async (req,res,next) => {
 
         let {categoryId,userId,accountId,amount,note} = req.body
 
-        userId = userId ? userId : req.user._id
+        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
         const expanse = await ExpanseLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
 
@@ -115,7 +115,7 @@ const updateByPut = tryCatch(async (req,res,next) => {
     let {categoryId,userId,accountId,amount,note} = req.body;
     const {id} = req.params;
 
-    userId = userId ? userId : req.user._id
+    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
     const {expanse, state} = await ExpanseLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
 

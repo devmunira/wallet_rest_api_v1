@@ -166,6 +166,11 @@ const UpdatePutRequestValidator = [
 
 ];
 
+// update by put
+const putRequestValidator = () => {
+    
+}
+
 
 // Sign Request Body Validator
 const resetRequestValidator = [

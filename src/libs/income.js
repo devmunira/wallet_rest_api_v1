@@ -32,7 +32,8 @@ const count = (data) => {
 
 // Get All Roles according to filter from DB
 const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,account,category,min_price,max_price,fromdate,todate}) => {
-    // populate sortType val for query
+    try {
+        // populate sortType val for query
     let sortTypeForDB = generateSortType(sortType);
 
     let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
@@ -46,8 +47,7 @@ const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,ac
     if(account) filter.accountId = account;
     if(category) filter.categoryId = category;
     if (min_price || max_price) {
-        filter.amount = {};
-      
+        filter.amount = {};   
         if (min_price) {
           filter.amount.$gte = min_price;
         }
@@ -63,61 +63,67 @@ const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,ac
 
         console.log('filter' , filter)
       }
-    // send request to db with all query params
-   let incomes = await Income.find(filter)
-    .select(selectedColums)
-    .sort({[sortBy] : sortTypeForDB})
-    .skip(page * limit - limit)
-    .limit(limit)
-    .populate(populateRelations.includes('user') ? {
-        path   : 'userId',
-        select : 'username , email , phone , roleId, createdAt , updatedAt',
-    } : '')
-    .populate(populateRelations.includes('category') ? {
-        path   : 'categoryId',
-        select : 'name , slug , createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('account') ? {
-        path   : 'accountId',
-        select : 'name , account_details createdAt , updatedAt , _id',
-    } : '')
-    
-    // count total roles based on search query params only, not apply on pagination
-    let totalItems = await count(filter) ;
+        // send request to db with all query params
+    let incomes = await Income.find(filter)
+        .select(selectedColums)
+        .sort({[sortBy] : sortTypeForDB})
+        .skip(page * limit - limit)
+        .limit(limit)
+        .populate(populateRelations.includes('user') ? {
+            path   : 'userId',
+            select : 'username , email , phone , roleId, createdAt , updatedAt',
+        } : '')
+        .populate(populateRelations.includes('category') ? {
+            path   : 'categoryId',
+            select : 'name , slug , createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('account') ? {
+            path   : 'accountId',
+            select : 'name , account_details createdAt , updatedAt , _id',
+        } : '')
+        
+        // count total roles based on search query params only, not apply on pagination
+        let totalItems = await count(filter) ;
 
-    return {
-        incomes,
-        totalItems
+        return {
+            incomes,
+            totalItems
+        }
+    } catch (error) {
+        
     }
 }
 
 // get Single Item
 const getById = async ({select,populate,id}) => {
-    let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
+    try {
+        let selectedColums = generateSelectItems(select,['_id','amount','categoryId','userId','accountId', 'note' ,'createdAt' , 'updatedAt']);
 
-    let populateRelations = generateSelectItems(populate,['user','category','account']);
+        let populateRelations = generateSelectItems(populate,['user','category','account']);
     
+        // send request to db with all query params
+        let income = await Income.findById(id)
+        .select(selectedColums)
+        .populate(populateRelations.includes('user') ? {
+            path   : 'userId',
+            select : 'username , email , phone , roleId,createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('category') ? {
+            path   : 'categoryId',
+            select : 'name , slug , createdAt , updatedAt , _id',
+        } : '')
+        .populate(populateRelations.includes('account') ? {
+            path   : 'accountId',
+            select : 'name , account_details createdAt , updatedAt , _id',
+        } : '')
 
-    // send request to db with all query params
-    let income = await Income.findById(id)
-    .select(selectedColums)
-    .populate(populateRelations.includes('user') ? {
-        path   : 'userId',
-        select : 'username , email , phone , roleId,createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('category') ? {
-        path   : 'categoryId',
-        select : 'name , slug , createdAt , updatedAt , _id',
-    } : '')
-    .populate(populateRelations.includes('account') ? {
-        path   : 'accountId',
-        select : 'name , account_details createdAt , updatedAt , _id',
-    } : '')
-
-    if(income){
-        return income._doc
-    }else{
-        throw notFoundError()
+        if(income){
+            return income._doc
+        }else{
+            throw notFoundError()
+        }
+    } catch (error) {
+        throw serverError(error)
     }
 
 
@@ -125,35 +131,10 @@ const getById = async ({select,populate,id}) => {
 
 // Update Single User Via PATCH Request
 const updateByPatch = async ({id,categoryId,userId,accountId,amount,note}) => {
+    try {   
+        const income = await Income.findById(id).exec();
+        if(!income) throw new Error('Income Not Found!')
 
-    const income = await Income.findById(id).exec();
-    if(!income) throw new Error('Income Not Found!')
-
-    income.amount = amount ? amount : income.amount;
-    income.accountId = accountId ? accountId : income.accountId;
-    income.categoryId = categoryId ? categoryId : income.categoryId;
-    income.userId = userId ? userId : income.userId;
-    income.note = note ? note : income.note;
-    await income.save();
-
-    delete income._doc.id
-    delete income._doc.__v
-    return income._doc
-}
-
-
-
-// Update Single User Via PATCH Request
-const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
-    const income = await Income.findById(id).exec();
-
-    if(!income) {
-       const {income} =  await createIncome({categoryId,userId,accountId,amount,note})
-        return {
-            income : income._doc, 
-            state : 'create'
-        }
-    }else{
         income.amount = amount ? amount : income.amount;
         income.accountId = accountId ? accountId : income.accountId;
         income.categoryId = categoryId ? categoryId : income.categoryId;
@@ -161,10 +142,41 @@ const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
         income.note = note ? note : income.note;
         await income.save();
 
-        return {
-            income : income._doc,
-            state : 'update'
+        delete income._doc.id
+        delete income._doc.__v
+        return income._doc
+    } catch (error) {
+        throw serverError(error)
+    }
+}
+
+
+
+// Update Single User Via PATCH Request
+const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
+    try {
+        const income = await Income.findById(id).exec();
+        if(!income) {
+        const {income} =  await createIncome({categoryId,userId,accountId,amount,note})
+            return {
+                income : income._doc, 
+                state : 'create'
+            }
+        }else{
+            income.amount = amount ? amount : income.amount;
+            income.accountId = accountId ? accountId : income.accountId;
+            income.categoryId = categoryId ? categoryId : income.categoryId;
+            income.userId = userId ? userId : income.userId;
+            income.note = note ? note : income.note;
+            await income.save();
+
+            return {
+                income : income._doc,
+                state : 'update'
+            }
         }
+    } catch (error) {
+        throw serverError(error)
     }  
 }
 
@@ -172,12 +184,16 @@ const updateByPUT = async ({id, categoryId,userId,accountId,amount,note}) => {
 
 // Delete Single Role by Id
 const deleteById = async (id) => {
-    const income = await Income.findOne({_id : id}).exec();
-    if(!income) {
-        throw notFoundError();
-    }else{
-        await income.deleteOne()
-        return true;
+    try {
+        const income = await Income.findOne({_id : id}).exec();
+        if(!income) {
+            throw notFoundError();
+        }else{
+            await income.deleteOne()
+            return true;
+        }
+    } catch (error) {
+       throw serverError(error) 
     }
 };
 

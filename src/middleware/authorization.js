@@ -18,9 +18,7 @@ const authorization = (requiredPermissions = []) => async (req,_res,next) => {
             if (!hasRequiredPermission) {
                 throw unAuthorizedError('Access Denied!');
             }
-
             req.permsissions = requiredPermissions;
-            console.log(req.permsissions);
             next();
         }   
     } catch (error) {

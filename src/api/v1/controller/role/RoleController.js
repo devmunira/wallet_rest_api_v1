@@ -62,9 +62,6 @@ const updateByPatch = async (req,res,next) => {
         const {name , permissions} = req.body;
 
         const {updatedRole , permissionsArray} = await RoleLibs.updateByPatch(id,name,permissions)
-
-        console.log(updatedRole)
-
         return res.status(200).json({
             code : 200,
             message : 'Role Updated Successfully!',

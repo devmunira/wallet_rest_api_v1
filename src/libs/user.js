@@ -96,8 +96,6 @@ const getAll = async ({search, sortBy ,sortType, limit , page,role,select,popula
         // count total roles based on search query params only, not apply on pagination
         let totalItems = await count(filter) ;
 
-        console.log(users , 'users')
-
         return {
             users,
             totalItems

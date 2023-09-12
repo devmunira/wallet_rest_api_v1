@@ -20,7 +20,6 @@ const generateNewAccessRefreshToken = ({payload}) => {
 const createOrUpdateToken = async (id,refreshToken,issuedIp) => {
     try {
         const user = await User.findOne(id).exec();
-        console.log('user' , user)
         user.refresh_token = refreshToken;
         user.issuedIp = issuedIp;
         await user.save();

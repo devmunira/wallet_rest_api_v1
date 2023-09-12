@@ -60,8 +60,6 @@ const getAll = async ({limit,page,sortType,sortBy,search,user,select,populate,ac
         filter.updatedAt = {}
         if(fromdate) filter.updatedAt.$gte = new Date(fromdate)
         if(todate) filter.updatedAt.$lte = new Date(todate)
-
-        console.log('filter' , filter)
       }
         // send request to db with all query params
     let incomes = await Income.find(filter)

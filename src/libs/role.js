@@ -30,8 +30,6 @@ const create = async (name, permissions) => {
 
             const dataCheck = await Permission.findById(item).exec();
 
-            console.log(dataCheck, 'datacheck')
-
             if (!data && dataCheck !== null) {
                 const permissionRole = new PermissionRole();
                 permissionRole.roleId = role._id;

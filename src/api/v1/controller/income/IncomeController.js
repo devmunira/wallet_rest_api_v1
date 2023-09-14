@@ -4,6 +4,9 @@ import { IDQUERY, LIMIT, MAXPRICE, MINPRICE, PAGE, POPULATE, SEARCH, SELECT, SOR
 import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
+import Income from "../../../../model/Income.js";
+
+    
 
 // Create Income to DB
 const create = tryCatch(async (req,res,next) => {
@@ -51,7 +54,7 @@ const getAll = tryCatch(async (req,res,next) => {
          code : 200,
          message: 'Successfully data Retrived!',
          data  : incomes.length > 0 ?  transformData(incomes , req.url) : [], 
-         links : generateAllDataHateoasLinks(req.url,req._parsedUrl.pathname,page,totalPage,req.query),
+         links : generateAllDataHateoasLinks(incomes,req.url,req._parsedUrl.pathname,page,totalPage,req.query),
          pagination : generatePagination(totalPage,page,totalItems,limit)
      }
  
@@ -61,26 +64,34 @@ const getAll = tryCatch(async (req,res,next) => {
 
 // Get Single Incomes according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
-    let {select,populate} = req.query;
-    let {id} = req.params
+    const data = await Income.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        let {select,populate} = req.query;
+        let {id} = req.params
 
-    // set default search params   
-    select  = select || SELECT
-    populate = populate || POPULATE
- 
-    let income = await IncomeLibs.getById({select,populate,id});
- 
-    // generate final responses data
-    let result = {
-         code : 200,
-         message: 'Successfully data Retrived!',
-         data  : {
-            ...income,
-            links : `${process.env.API_BASE_URL}${req.url}`,
-         }
-     }
- 
-     return res.status(200).json(result)
+        // set default search params   
+        select  = select || SELECT
+        populate = populate || POPULATE
+    
+        let income = await IncomeLibs.getById({select,populate,id});
+    
+        // generate final responses data
+        let result = {
+            code : 200,
+            message: 'Successfully data Retrived!',
+            data  : {
+                ...income,
+                links : `${process.env.API_BASE_URL}${req.url}`,
+            }
+        }
+    
+        return res.status(200).json(result)
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+    }
 })
 
 
@@ -88,21 +99,29 @@ const getById = tryCatch(async (req,res,next) => {
 // Update Income on DB
 const updateByPatch = async (req,res,next) => {
     try {
-        const { id } = req.params;
+        const data = await Income.findById(req.params.id).exec();
+        if(!data) throw notFoundError();
+        const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+        if(hasPermit){
+            const { id } = req.params;
 
-        let {categoryId,userId,accountId,amount,note} = req.body
+            let {categoryId,userId,accountId,amount,note} = req.body
 
-        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
+            await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
-        const income = await IncomeLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
+            const income = await IncomeLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
 
-        return res.status(200).json({
-            code : 200,
-            message : 'Income Updated Successfully!',
-            data : {
-                ...income,
-            }
-        });
+            return res.status(200).json({
+                code : 200,
+                message : 'Income Updated Successfully!',
+                data : {
+                    ...income,
+                }
+            });
+        }
+        else{
+            throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+        }
     } catch (error) {
         next(error)
     }
@@ -112,33 +131,49 @@ const updateByPatch = async (req,res,next) => {
 
 // Update or Create Income to DB
 const updateByPut = tryCatch(async (req,res,next) => {
-    let {categoryId,userId,accountId,amount,note} = req.body;
-    const {id} = req.params;
+    const data = await Income.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        let {categoryId,userId,accountId,amount,note} = req.body;
+        const {id} = req.params;
 
-    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
+        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
-    const {income, state} = await IncomeLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
+        const {income, state} = await IncomeLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
 
-    res.status(state === 'create' ? 201 : 200).json({
-        code : state === 'create' ? 201 : 200,
-        message : `Income ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
-        data : {
-            ...income,
-        }
-    })
+        res.status(state === 'create' ? 201 : 200).json({
+            code : state === 'create' ? 201 : 200,
+            message : `Income ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
+            data : {
+                ...income,
+            }
+        })
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+    }
 })
 
 
 
 // Delete Single Income by Id
 const deleteById = tryCatch(async (req,res,next) => {
-    const {id} = req.params;
-    const isDeleted = await IncomeLibs.deleteById(id);
-    if(isDeleted){
-        res.status(204).json({
-            code : 204,
-            message : 'Income Deleted Successfully!',
-        })
+    const data = await Income.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        const {id} = req.params;
+        const isDeleted = await IncomeLibs.deleteById(id);
+        if(isDeleted){
+            res.status(204).json({
+                code : 204,
+                message : 'Income Deleted Successfully!',
+            })
+        }
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
     }
 
 });

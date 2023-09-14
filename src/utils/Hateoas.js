@@ -11,9 +11,10 @@ const generateCreateHateoasLinks = (baseUrl,id,slug) => {
 
 
 // generate all data hateoasplinks
-const generateAllDataHateoasLinks = (url,baseUrl,page,totalPage,q) => {
-    let links =  {
-        self : `${process.env.API_BASE_URL}${url}`,
+const generateAllDataHateoasLinks = (data,url,baseUrl,page,totalPage,q) => {
+    let links =  {}
+    if(data.length > 0){
+        links.self = `${process.env.API_BASE_URL}${url}`
     }
     // generate nextpage links if next page exits
     if(page < totalPage){

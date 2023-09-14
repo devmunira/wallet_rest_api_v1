@@ -11,6 +11,7 @@ import IncomeController from "../api/v1/controller/income/index.js";
 import RecordController from "../api/v1/controller/record/index.js";
 import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest, UserRequest, AccountRequest , ExpanseRequest} from "../request/index.js"
 import {requestValidator , authorization , authenticate} from "../middleware/index.js"
+import hasOwn from "../middleware/hasOwn.js";
 
 
 
@@ -43,78 +44,77 @@ router.route('/roles')
 .post(authenticate , authorization(['create-role']) ,  RoleRequest.roleCreateRequest , requestValidator,  RoleController.create)
 .get(authenticate , authorization(['read-role']) , QueryRequest.basicQueryParams , requestValidator,  RoleController.getAll)
 router.route('/roles/:id')
-.patch(authenticate , authorization(['update-role' , 'update-own-role']) ,  RoleRequest.roleUpdateRequest , requestValidator, RoleController.updateByPatch)
+.patch(authenticate , authorization(['update-role']) ,  RoleRequest.roleUpdateRequest , requestValidator, RoleController.updateByPatch)
 .delete(authenticate , authorization(['delete-role']) ,  RoleController.deleteById)
 
 
 
 
 // User Router Start From Here
-router.route('/users')
-.post(authenticate,   authorization(['create-user']) ,   UserRequest.createRequestValidator , requestValidator, UserController.create)
+router.route('/users').post(authenticate,   authorization(['create-user']) ,   UserRequest.createRequestValidator , requestValidator, UserController.create)
 .get(authenticate ,   authorization(['read-user']) , QueryRequest.basicQueryParams , requestValidator,  UserController.getAll)
 router.route('/users/:id')
-.patch(authenticate ,  authorization(['update-user' , 'update-own-user']) , UserRequest.UpdatePatchRequestValidator , requestValidator, UserController.updateByPatch)
+.patch(authenticate , authorization(['update-user' , 'update-own-user']), UserRequest.UpdatePatchRequestValidator , requestValidator, UserController.updateByPatch)
 .put(authenticate ,  authorization(['update-user' , 'update-own-user']) , UserController.updateByPut)
-.get(authenticate ,  authorization(['single-user' , 'single-own-user']), UserController.getById)
-.delete(authenticate ,  authorization(['delete-user' , 'delete-own-user']) , UserController.deleteById)
+.get(authenticate ,  authorization(['single-user' , 'single-own-user']),UserController.getById)
+.delete(authenticate ,  authorization(['delete-user' , 'delete-own-user']) ,UserController.deleteById)
 
 
 // User Password Change Route
-router.patch('/users/:id/reset-password' , authenticate ,  authorization(['update-password' , 'update-own-password']) , UserRequest.resetRequestValidator , requestValidator ,  UserController.resetPasword)
+router.patch('/users/:id/reset-password' , authenticate ,  authorization(['update-password' , 'update-own-password']), UserRequest.resetRequestValidator , requestValidator ,  UserController.resetPasword)
 
 
 
 // Category Router Start From Here
 router.route('/categories')
-.post(authenticate , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
+.post(authenticate , authorization(['create-category']) , CategoryRequest.categoryCreateRequest , requestValidator,  CategoryController.create)
+.get(authenticate , authorization(['read-category']) , QueryRequest.basicQueryParams , requestValidator,  CategoryController.getAll)
 router.route('/categories/:id')
-.put(authenticate , CategoryRequest.categoryUpdateRequest , requestValidator, CategoryController.updateByPut)
-.delete(authenticate , CategoryController.deleteById)
+.put(authenticate ,authorization(['update-category']) ,  CategoryRequest.categoryUpdateRequest , requestValidator, CategoryController.updateByPut)
+.delete(authenticate ,authorization(['delete-category']) ,  CategoryController.deleteById)
 
 
 
 // Account Router Start From Here
 router.route('/accounts')
-.post(authenticate , AccountRequest.createRequestValidator , requestValidator,  AccountController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  AccountController.getAll)
+.post(authenticate , authorization(['create-account']) ,  AccountRequest.createRequestValidator , requestValidator,  AccountController.create)
+.get(authenticate , authorization(['read-account']), QueryRequest.basicQueryParams , requestValidator,  AccountController.getAll)
 router.route('/accounts/:id')
-.put(authenticate , AccountController.updateByPut)
-.patch(authenticate , AccountRequest.UpdatePatchRequestValidator , requestValidator, AccountController.updateByPatch)
-.delete(authenticate , AccountController.deleteById)
-.get(authenticate , AccountController.getById)
+.put(authenticate , authorization(['update-account' , 'update-own-account']),  AccountController.updateByPut)
+.patch(authenticate ,authorization(['update-account' , 'update-own-account']),  AccountRequest.UpdatePatchRequestValidator , requestValidator, AccountController.updateByPatch)
+.delete(authenticate ,authorization(['delete-account' , 'delete-own-account']), AccountController.deleteById)
+.get(authenticate ,authorization(['single-account' , 'single-own-account']), AccountController.getById)
 
 
 
 // Expanse Router Start From Here
 router.route('/expanses')
-.post(authenticate , ExpanseRequest.expanseCreateRequest , requestValidator,  ExpanseController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  ExpanseController.getAll)
+.post(authenticate , authorization(['create-expanse' , 'create-own-expanse']), ExpanseRequest.expanseCreateRequest , requestValidator,  ExpanseController.create)
+.get(authenticate , authorization(['read-expanse']), QueryRequest.basicQueryParams , requestValidator,  ExpanseController.getAll)
 router.route('/expanses/:id')
-.put(authenticate , ExpanseController.updateByPut)
-.patch(authenticate , ExpanseRequest.expanseCreateRequest , requestValidator, ExpanseController.updateByPatch)
-.delete(authenticate , ExpanseController.deleteById)
-.get(authenticate , ExpanseController.getById)
+.put(authenticate ,authorization(['update-expanse' , 'update-own-expanse']), ExpanseController.updateByPut)
+.patch(authenticate ,authorization(['update-expanse' , 'update-own-expanse']), ExpanseRequest.expanseCreateRequest , requestValidator, ExpanseController.updateByPatch)
+.delete(authenticate ,authorization(['delete-expanse' , 'delete-own-expanse']), ExpanseController.deleteById)
+.get(authenticate ,authorization(['single-expanse' , 'single-own-expanse']), ExpanseController.getById)
 
 
 
 // Income Router Start From Here
 router.route('/incomes')
-.post(authenticate , ExpanseRequest.expanseCreateRequest , requestValidator,  IncomeController.create)
-.get(authenticate , QueryRequest.basicQueryParams , requestValidator,  IncomeController.getAll)
+.post(authenticate ,  authorization(['create-income' , 'create-own-income']),ExpanseRequest.expanseCreateRequest , requestValidator,  IncomeController.create)
+.get(authenticate , authorization(['read-income']), QueryRequest.basicQueryParams , requestValidator,  IncomeController.getAll)
 router.route('/incomes/:id')
-.put(authenticate , IncomeController.updateByPut)
-.patch(authenticate , ExpanseRequest.expanseCreateRequest , requestValidator, IncomeController.updateByPatch)
-.delete(authenticate , IncomeController.deleteById)
-.get(authenticate , IncomeController.getById)
+.put(authenticate ,  authorization(['update-income' , 'update-own-income']),IncomeController.updateByPut)
+.patch(authenticate , authorization(['update-income' , 'update-own-income']), ExpanseRequest.expanseCreateRequest , requestValidator, IncomeController.updateByPatch)
+.delete(authenticate , authorization(['delete-incpme' , 'delete-own-incpme']), IncomeController.deleteById)
+.get(authenticate , authorization(['single-incpme' , 'single-own-incpme']), IncomeController.getById)
 
 
 
 // Record Router Start From Here
 router.get('/data-analysis' , authenticate , authorization(['data-analysis']) , RecordController.getAllUserDataAnalysis)
-router.get('/data-analysis/:userId' , authenticate , authorization(['single-data-analysis']) , RecordController.getSingleUserDataAnalysis)
-router.get('/filter-data-analysis' , authenticate , authorization(['filter-analysis']) , RecordController.filterData)
+router.get('/data-analysis/:userId' , authenticate , authorization(['single-analysis' , 'single-own-analysis']) , RecordController.getSingleUserDataAnalysis)
+// router.get('/filter-data-analysis' , authenticate , authorization(['filter-analysis' , 'filter-own-analysis']) , RecordController.filterData)
 
 
 // export for use on index file

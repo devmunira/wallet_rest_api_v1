@@ -51,9 +51,8 @@ const updateToken = async (usernameOremail,OTP) => {
     try {
         const user = await User.findOne({$or: [{ username: usernameOremail }, { email: usernameOremail }]});
         if(!user) throw notFoundError();
-        
         user.verification_token = OTP
-        user.expiredAt = addMinutes(new Date() , 5)
+        user.expiredAt = addMinutes(new Date() , 5);
         user.save();
         return user;
     } catch (error) {
@@ -180,6 +179,7 @@ const updateByPUT = async (id,username,email,phone,roleId,password,confirm_passw
         if(!updateUser) {
             if(!username) throw new Error('Username is required!')
             if(!email) throw new Error('Email is required!')
+
             const {user, accessToken} =  await createUser({username,email,password,confirm_password,phone,roleId})
             return {
                 user : user._doc, 

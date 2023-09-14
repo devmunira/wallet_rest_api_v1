@@ -48,7 +48,7 @@ const getAll = tryCatch(async (req,res,next) => {
         code : 200,
         message: 'Successfully data Retrived!',
         data  : updatedRoles.length > 0 ?  transformPopulatedData(updatedRoles , req.url) : [], 
-        links : generateAllDataHateoasLinks(req.url,req._parsedUrl.pathname,page,totalPage,req.query),
+        links : generateAllDataHateoasLinks(updatedRoles,req.url,req._parsedUrl.pathname,page,totalPage,req.query),
         pagination : generatePagination(totalPage,page,totalItems,limit)
     }
 

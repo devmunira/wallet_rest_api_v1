@@ -5,10 +5,18 @@ import { unAuthorizedError } from "../utils/Error.js";
 const authorization = (requiredPermissions = []) => async (req,_res,next) => {
     try {
         const role = await Role.findById(req.user.roleId).exec();
+        
+        let userPermissions = await PermissionLibs.getPermissionsNameBasedOnRoleId(req.user.roleId) || [];
+        userPermissions = ['single-own-analysis']
+        req.permsissions = {
+            requiredPermissions,
+            userPermissions : userPermissions.flat(),
+            userRole : role._doc.name
+        };
         if(role._doc.name === 'admin' ||role._doc.name === 'Admin' ||role._doc.name === 'Super-Admin' ||role._doc.name === 'super-admin' ){
             next();
         }else{
-            const userPermissions = await PermissionLibs.getPermissionsNameBasedOnRoleId(req.user.roleId) || [];
+
 
             // Check if the user has any of the requiredPermissions
             const hasRequiredPermission = requiredPermissions.some((requiredPermission) => {
@@ -18,9 +26,9 @@ const authorization = (requiredPermissions = []) => async (req,_res,next) => {
             if (!hasRequiredPermission) {
                 throw unAuthorizedError('Access Denied!');
             }
-            req.permsissions = requiredPermissions;
             next();
-        }   
+        }
+   
     } catch (error) {
         next(error)
     }

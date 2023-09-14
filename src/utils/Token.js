@@ -14,9 +14,10 @@ const generateJWT = ({payload, JWT_SECRET = process.env.JWT_SECRET , expiresIn =
 }
 
 // Verify JWT Token
-const verifyJWT = ({JWT_SECRET = process.env.JWT_SECRET ,token , algorithm = "HS256"}) => {
+const verifyJWT = ({JWT_SECRET = process.env.JWT_SECRET , token , algorithm = "HS256"}) => {
     try {
        const payload = JWT.verify(token,JWT_SECRET , {algorithms : [algorithm]})
+
        if(!isAfter(new Date() , payload.exp) && payload.issuedIp !== ip.address()) throw unAuthenticateError('Invalid Token!');
        else {
         return payload

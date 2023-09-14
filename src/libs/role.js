@@ -1,6 +1,6 @@
 import Role from "../model/Role.js"
 import { generateSortType } from "../utils/Query.js";
-import { notFoundError } from "../utils/Error.js";
+import { notFoundError, permissionRelationDataCheck, serverError } from "../utils/Error.js";
 import PermissionRole from "../model/PermissionRole.js";
 import mongoose from "mongoose";
 import { PermissionLibs } from "./index.js";
@@ -31,6 +31,7 @@ const create = async (name, permissions) => {
             const dataCheck = await Permission.findById(item).exec();
 
             if (!data && dataCheck !== null) {
+                await permissionRelationDataCheck(item)
                 const permissionRole = new PermissionRole();
                 permissionRole.roleId = role._id;
                 permissionRole.permissionId = item;

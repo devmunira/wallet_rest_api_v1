@@ -39,7 +39,7 @@ const getAll = tryCatch(async (req,res,next) => {
         code : 200,
         message: 'Successfully data Retrived!',
         data  : categories.length > 0 ?  transformData(categories , req.url) : [], 
-        links : generateAllDataHateoasLinks(req.url,req._parsedUrl.pathname,page,totalPage,req.query),
+        links : generateAllDataHateoasLinks(categories,req.url,req._parsedUrl.pathname,page,totalPage,req.query),
         pagination : generatePagination(totalPage,page,totalItems,limit)
     }
 

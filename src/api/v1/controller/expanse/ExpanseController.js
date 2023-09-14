@@ -4,6 +4,7 @@ import { IDQUERY, LIMIT, MAXPRICE, MINPRICE, PAGE, POPULATE, SEARCH, SELECT, SOR
 import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
+import Expanse from "../../../../model/Expanse.js";
 
 // Create Expanse to DB
 const create = tryCatch(async (req,res,next) => {
@@ -51,7 +52,7 @@ const getAll = tryCatch(async (req,res,next) => {
          code : 200,
          message: 'Successfully data Retrived!',
          data  : expanses.length > 0 ?  transformData(expanses , req.url) : [], 
-         links : generateAllDataHateoasLinks(req.url,req._parsedUrl.pathname,page,totalPage,req.query),
+         links : generateAllDataHateoasLinks(expanses,req.url,req._parsedUrl.pathname,page,totalPage,req.query),
          pagination : generatePagination(totalPage,page,totalItems,limit)
      }
  
@@ -61,26 +62,34 @@ const getAll = tryCatch(async (req,res,next) => {
 
 // Get Single Expanses according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
-    let {select,populate} = req.query;
-    let {id} = req.params
+    const data = await Expanse.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        let {select,populate} = req.query;
+        let {id} = req.params
 
-    // set default search params   
-    select  = select || SELECT
-    populate = populate || POPULATE
- 
-    let expanse = await ExpanseLibs.getById({select,populate,id});
- 
-    // generate final responses data
-    let result = {
-         code : 200,
-         message: 'Successfully data Retrived!',
-         data  : {
-            ...expanse,
-            links : `${process.env.API_BASE_URL}${req.url}`,
-         }
-     }
- 
-     return res.status(200).json(result)
+        // set default search params   
+        select  = select || SELECT
+        populate = populate || POPULATE
+    
+        let expanse = await ExpanseLibs.getById({select,populate,id});
+    
+        // generate final responses data
+        let result = {
+            code : 200,
+            message: 'Successfully data Retrived!',
+            data  : {
+                ...expanse,
+                links : `${process.env.API_BASE_URL}${req.url}`,
+            }
+        }
+    
+        return res.status(200).json(result)
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+    }
 })
 
 
@@ -88,21 +97,29 @@ const getById = tryCatch(async (req,res,next) => {
 // Update Expanse on DB
 const updateByPatch = async (req,res,next) => {
     try {
-        const { id } = req.params;
+        const data = await Expanse.findById(req.params.id).exec();
+        if(!data) throw notFoundError();
+        const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+        if(hasPermit){
+            const { id } = req.params;
 
-        let {categoryId,userId,accountId,amount,note} = req.body
+            let {categoryId,userId,accountId,amount,note} = req.body
 
-        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
+            await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
-        const expanse = await ExpanseLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
+            const expanse = await ExpanseLibs.updateByPatch({id,categoryId,userId,accountId,amount,note})
 
-        return res.status(200).json({
-            code : 200,
-            message : 'Expanse Updated Successfully!',
-            data : {
-                ...expanse,
-            }
-        });
+            return res.status(200).json({
+                code : 200,
+                message : 'Expanse Updated Successfully!',
+                data : {
+                    ...expanse,
+                }
+            });
+        }
+        else{
+            throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+        }
     } catch (error) {
         next(error)
     }
@@ -112,33 +129,49 @@ const updateByPatch = async (req,res,next) => {
 
 // Update or Create Expanse to DB
 const updateByPut = tryCatch(async (req,res,next) => {
-    let {categoryId,userId,accountId,amount,note} = req.body;
-    const {id} = req.params;
+    const data = await Expanse.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        let {categoryId,userId,accountId,amount,note} = req.body;
+        const {id} = req.params;
 
-    await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
+        await ExpanseLibs.checkRelationalData(userId,accountId,categoryId,req.user._id)
 
-    const {expanse, state} = await ExpanseLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
+        const {expanse, state} = await ExpanseLibs.updateByPUT({id, categoryId,userId,accountId,amount,note})
 
-    res.status(state === 'create' ? 201 : 200).json({
-        code : state === 'create' ? 201 : 200,
-        message : `Expanse ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
-        data : {
-            ...expanse,
-        }
+        res.status(state === 'create' ? 201 : 200).json({
+            code : state === 'create' ? 201 : 200,
+            message : `Expanse ${state == 'create' ? 'Created' : 'Updated'} Successfully!`,
+            data : {
+                ...expanse,
+            }
     })
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
+    }
 })
 
 
 
 // Delete Single Expanse by Id
 const deleteById = tryCatch(async (req,res,next) => {
-    const {id} = req.params;
-    const isDeleted = await ExpanseLibs.deleteById(id);
-    if(isDeleted){
-        res.status(204).json({
-            code : 204,
-            message : 'Expanse Deleted Successfully!',
-        })
+    const data = await Expanse.findById(req.params.id).exec();
+    if(!data) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    if(hasPermit){
+        const {id} = req.params;
+        const isDeleted = await ExpanseLibs.deleteById(id);
+        if(isDeleted){
+            res.status(204).json({
+                code : 204,
+                message : 'Expanse Deleted Successfully!',
+            })
+        }
+    }
+    else{
+        throw unAuthorizedError('You Do not have permit to modify or read other user data!');
     }
 
 });

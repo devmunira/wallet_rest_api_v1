@@ -23,7 +23,7 @@ app.use('/api/v1' , router)
 
 
 // Comment Out this function and run the server after sedding exicutuion please comment this function
-// seedData()
+seedData()
 
 
 // Global error handler

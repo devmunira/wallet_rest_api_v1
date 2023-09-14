@@ -16,6 +16,7 @@ import Income from '../model/Income.js';
 
 
 
+
 // Seed numOfUser Permission Data to Permission Documents
 const permissionSeeder = async () => {
     try {
@@ -103,43 +104,15 @@ const userSeeder = async () => {
         await adminUser.save();
 
         // Create Number of Accounts for user
-        const accounts =  await accountSeed(user._doc._id, 2);
+        const accounts =  await accountSeed(user._doc._id, 10);
 
         // Get Created Categories for query in expanse and income
         const categories = await Category.find().distinct('_id').lean().exec();
 
         console.log('Please wait expanses and incomes are creating........'.bgRed)
         accounts.forEach(async (item) => {
-            const note = faker.lorem.sentence();
-            const amount = faker.number.int({min : 1000 , max:100000}); 
-            const userId = user._doc._id;  
-            const categoryId = categories[faker.number.int({min : 1 , max:5})]; 
-            const accountId = item; 
-
-            const expanse = new Expanse({
-                note,
-                amount,
-                userId,
-                categoryId,
-                accountId,
-            });
-
-            const incomenote = faker.lorem.sentence();
-            const incomeamount = faker.number.int({min : 1000 , max:100000}); 
-            const incomeuserId = user._doc._id;  
-            const incomecategoryId = categories[faker.number.int({min : 1 , max:5})]; 
-            const incomeaccountId = item; 
-
-            const income = new Income({
-               note : incomenote,
-               amount :  incomeamount,
-               accountId : incomeaccountId,
-               userId :  incomeuserId,
-               categoryId :  incomecategoryId,
-            });
-
-            await expanse.save();
-            await income.save();
+            await expanseSeed(user,categories,item)
+            await incomeSeed(user,categories,item)  
         })
         console.log('User & Admin Created Successfully!'.bgGreen)
         console.log('Expanses & Incomes Created Successfully!'.bgGreen)
@@ -150,12 +123,39 @@ const userSeeder = async () => {
 
 
 // expanse seed
-const expanseSeed = () => {
+const expanseSeed = async (user,categories,item) => {
+    const note = faker.lorem.sentence();
+    const amount = faker.number.int({min : 1000 , max:100000}); 
+    const userId = user._doc._id;  
+    const categoryId = categories[faker.number.int({min : 1 , max:5})]; 
+    const accountId = item; 
 
+    const expanse = new Expanse({
+        note,
+        amount,
+        userId,
+        categoryId,
+        accountId,
+    });
+    await expanse.save();
 }
 // income seed
-const incomeSeed = () => {
-    
+const incomeSeed = async (user, categories,item) => {
+    const incomenote = faker.lorem.sentence();
+    const incomeamount = faker.number.int({min : 1000 , max:100000}); 
+    const incomeuserId = user._doc._id;  
+    const incomecategoryId = categories[faker.number.int({min : 1 , max:5})]; 
+    const incomeaccountId = item; 
+
+    const income = new Income({
+       note : incomenote,
+       amount :  incomeamount,
+       accountId : incomeaccountId,
+       userId :  incomeuserId,
+       categoryId :  incomecategoryId,
+    });
+
+    await income.save();
 }
 
 

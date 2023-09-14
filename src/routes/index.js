@@ -11,7 +11,6 @@ import IncomeController from "../api/v1/controller/income/index.js";
 import RecordController from "../api/v1/controller/record/index.js";
 import {AuthRequest , PermissionRequest , QueryRequest , CategoryRequest, RoleRequest, UserRequest, AccountRequest , ExpanseRequest} from "../request/index.js"
 import {requestValidator , authorization , authenticate} from "../middleware/index.js"
-import hasOwn from "../middleware/hasOwn.js";
 
 
 

@@ -14,11 +14,11 @@ import Account from '../model/Account.js';
 
 
 // Create or Register New User
-const createUser = async ({username,email,password,confirm_password,phone,roleId}) => {
+const createUser = async ({username,email,password,phone,roleId}) => {
     try {
         const hashPassword = await bcrypt.hash(password ? password : DEFAULTPASS , 10);
 
-        const userRole = await Role.findOne({'name' : 'user'}).exec();
+        const userRole = await Role.findOne({name : 'user'}).exec();
         if(!roleId && !userRole) throw notFoundError('Please First Set a Role or Add a Role Named user!');
 
         const user = new User({

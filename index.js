@@ -7,6 +7,7 @@ const swaggerSpec = YAML.load('./docs/swagger.yaml')
 import {middleware , notFoundHandellar , globalErrorHandellar } from './src/middleware/index.js';
 import router from './src/routes/index.js';
 import connectMongoDB from "./src/config/db.js"
+import {seedData} from './src/dbSeeder/index.js';
 
 
 dotenv.config();
@@ -19,6 +20,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route
 app.use('/api/v1' , router)
+
+
+// Comment Out this function and run the server after sedding exicutuion please comment this function
+// seedData()
 
 
 // Global error handler

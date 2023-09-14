@@ -137,10 +137,10 @@ Install dependencies
 ```bash
   npm install
 ```
-Seed Required Role & Permission Based Data.
+Seed Required Role & Permission Based Data. Just uncomment index.js file seedData function and run the server for time then comment it again.
 
 ```bash
-  npm run seed
+  // seedData()
 ```
 Start the server
 

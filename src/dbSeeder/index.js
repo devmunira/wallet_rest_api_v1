@@ -12,10 +12,7 @@ import Account from "../model/Account.js"
 import {generateSlug} from "../utils/Generate.js"
 import Category from '../model/Category.js';
 import Expanse from '../model/Expanse.js';
-import Income from '../model/Income.js';
-
-
-
+import Income from '../model/Income.js'; 
 
 // Seed numOfUser Permission Data to Permission Documents
 const permissionSeeder = async () => {

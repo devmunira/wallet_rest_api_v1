@@ -5,9 +5,9 @@ dotenv.config()
 
 
 // CONNECT WITH MONOGODB WITH MONGOOSE
-const conectMongoDB = async () => {
+const conectMongoDB = async (mode = 'development') => {
     try {
-        let connect = await mongoose.connect(process.env.MONGOOSE_STRING , {
+        let connect = await mongoose.connect(mode === 'test' ? process.env.MONGOOSE_TEST_STRING : process.env.MONGOOSE_STRING , {
             useNewUrlParser: true,
             // serverSelectionTimeoutMS : 5000
         });

@@ -5,9 +5,11 @@ import { unAuthorizedError } from "../utils/Error.js";
 const authorization = (requiredPermissions = []) => async (req,_res,next) => {
     try {
         const role = await Role.findById(req.user.roleId).exec();
+
+        console.log(req)
         
         let userPermissions = await PermissionLibs.getPermissionsNameBasedOnRoleId(req.user.roleId) || [];
-        userPermissions = ['single-own-analysis']
+       console.log(role)
         req.permsissions = {
             requiredPermissions,
             userPermissions : userPermissions.flat(),

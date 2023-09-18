@@ -3,6 +3,7 @@ import { generateSortType } from "../utils/Query.js";
 import { badRequestError, notFoundError, serverError } from "../utils/Error.js";
 import { generateSlug } from "../utils/Generate.js";
 import Expanse from "./../model/Expanse.js"
+import Income from "../model/Income.js";
 
 
 
@@ -97,7 +98,7 @@ const deleteById = async (id) => {
         return true;
     }
     } catch (error) {
-        throw serverError(error)
+        throw notFoundError(error.message)
     }
 };
 

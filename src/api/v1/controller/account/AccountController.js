@@ -24,8 +24,8 @@ const create = tryCatch(async (req,res,next) => {
     const {account} = await AccountLibs.createAccount({name,account_details,initial_value,userId});
 
     // Send Responses
-    res.status(200).json({
-        code : 200,
+    res.status(201).json({
+        code : 201,
         mesaage : 'Account Created Completed Successfully!',
         data : {
         ...account._doc,
@@ -140,8 +140,8 @@ const updateByPatch = async (req,res,next) => {
 // Update or Create Account to DB
 const updateByPut = tryCatch(async (req,res,next) => {
     const account = await Account.findById(req.params.id).exec();
-    if(!account) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, account._doc.userId.toString() , req.user);
+    // if(!account) throw notFoundError();
+    const hasPermit = hasOwn(req.permsissions, account ?  account._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {name,account_details,initial_value,userId} = req.body;
         const {id} = req.params;

@@ -7,7 +7,6 @@ export const notFoundHandellar = (_req,_res,next) => {
 
 
 export const globalErrorHandellar = (error,_req,res,_next)=>{
-    console.log('Error ---------------' , error.stack)
     if(error.status){
       return  res.status(error.status).json({
             message : error.message

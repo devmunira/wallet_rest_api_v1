@@ -12,7 +12,6 @@ const hasOwn = (permissions,id,user) => {
         if (hasEvery) {
             return true;
         } else {
-            console.log('every nai' , permissions.requiredPermissions)
             let findOwn = permissions.requiredPermissions.filter((item) => item.includes('own'));
             if (findOwn.length > 0) { 
                 const getOwn = permissions.userPermissions.filter((item) => item === findOwn[0]);

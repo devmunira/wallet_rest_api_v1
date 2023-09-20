@@ -16,8 +16,8 @@ const create = tryCatch(async (req,res,next) => {
     // Create User on DB
     const {user,accessToken} = await UserLibs.createUser({username,email,password,confirm_password,phone,roleId});
     // Send Responses
-    res.status(200).json({
-        code : 200,
+    res.status(201).json({
+        code : 201,
         mesaage : 'User Created Completed Successfully!',
         data : {
         ...user._doc,

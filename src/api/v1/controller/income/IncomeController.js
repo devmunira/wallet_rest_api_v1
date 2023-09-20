@@ -5,6 +5,8 @@ import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
 import Income from "../../../../model/Income.js";
+import hasOwn from "../../../../middleware/hasOwn.js";
+import { notFoundError } from "../../../../utils/Error.js";
 
     
 
@@ -17,8 +19,8 @@ const create = tryCatch(async (req,res,next) => {
     // Create Income on DB
     const {income} = await IncomeLibs.createIncome({categoryId,userId,accountId,amount,note});
     // Send Responses
-    res.status(200).json({
-        code : 200,
+    res.status(201).json({
+        code : 201,
         mesaage : 'Income Created Completed Successfully!',
         data : {
         ...income._doc,
@@ -65,8 +67,7 @@ const getAll = tryCatch(async (req,res,next) => {
 // Get Single Incomes according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
     const data = await Income.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {select,populate} = req.query;
         let {id} = req.params
@@ -100,8 +101,7 @@ const getById = tryCatch(async (req,res,next) => {
 const updateByPatch = async (req,res,next) => {
     try {
         const data = await Income.findById(req.params.id).exec();
-        if(!data) throw notFoundError();
-        const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+        const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
         if(hasPermit){
             const { id } = req.params;
 
@@ -132,8 +132,7 @@ const updateByPatch = async (req,res,next) => {
 // Update or Create Income to DB
 const updateByPut = tryCatch(async (req,res,next) => {
     const data = await Income.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {categoryId,userId,accountId,amount,note} = req.body;
         const {id} = req.params;
@@ -160,8 +159,7 @@ const updateByPut = tryCatch(async (req,res,next) => {
 // Delete Single Income by Id
 const deleteById = tryCatch(async (req,res,next) => {
     const data = await Income.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         const {id} = req.params;
         const isDeleted = await IncomeLibs.deleteById(id);

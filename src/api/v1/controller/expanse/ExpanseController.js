@@ -5,6 +5,8 @@ import { transformData } from "../../../../utils/Response.js";
 import { generateAllDataHateoasLinks } from "../../../../utils/Hateoas.js";
 import { generatePagination } from "../../../../utils/Pagination.js";
 import Expanse from "../../../../model/Expanse.js";
+import hasOwn from "../../../../middleware/hasOwn.js";
+import { notFoundError } from "../../../../utils/Error.js";
 
 // Create Expanse to DB
 const create = tryCatch(async (req,res,next) => {
@@ -15,8 +17,8 @@ const create = tryCatch(async (req,res,next) => {
     // Create Expanse on DB
     const {expanse} = await ExpanseLibs.createExpanse({categoryId,userId,accountId,amount,note});
     // Send Responses
-    res.status(200).json({
-        code : 200,
+    res.status(201).json({
+        code : 201,
         mesaage : 'Expanse Created Completed Successfully!',
         data : {
         ...expanse._doc,
@@ -63,8 +65,7 @@ const getAll = tryCatch(async (req,res,next) => {
 // Get Single Expanses according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
     const data = await Expanse.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {select,populate} = req.query;
         let {id} = req.params
@@ -98,8 +99,7 @@ const getById = tryCatch(async (req,res,next) => {
 const updateByPatch = async (req,res,next) => {
     try {
         const data = await Expanse.findById(req.params.id).exec();
-        if(!data) throw notFoundError();
-        const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+        const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
         if(hasPermit){
             const { id } = req.params;
 
@@ -130,8 +130,7 @@ const updateByPatch = async (req,res,next) => {
 // Update or Create Expanse to DB
 const updateByPut = tryCatch(async (req,res,next) => {
     const data = await Expanse.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {categoryId,userId,accountId,amount,note} = req.body;
         const {id} = req.params;
@@ -158,8 +157,7 @@ const updateByPut = tryCatch(async (req,res,next) => {
 // Delete Single Expanse by Id
 const deleteById = tryCatch(async (req,res,next) => {
     const data = await Expanse.findById(req.params.id).exec();
-    if(!data) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, data._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, data ? data._doc.userId.toString() : null , req.user);
     if(hasPermit){
         const {id} = req.params;
         const isDeleted = await ExpanseLibs.deleteById(id);

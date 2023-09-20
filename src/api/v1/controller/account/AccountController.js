@@ -70,8 +70,7 @@ const getAll = tryCatch(async (req,res,next) => {
 // Get Single Accounts according to filter from DB
 const getById = tryCatch(async (req,res,next) => {
     const account = await Account.findById(req.params.id).exec();
-    if(!account) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, account._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, account ? account._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {select,populate} = req.query;
         let {id} = req.params
@@ -103,8 +102,7 @@ const getById = tryCatch(async (req,res,next) => {
 // Update Account on DB
 const updateByPatch = async (req,res,next) => {
     const account = await Account.findById(req.params.id).exec();
-    if(!account) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, account._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, account ? account._doc.userId.toString() : null , req.user);
     if(hasPermit){
         try {
             const { id } = req.params;
@@ -140,8 +138,7 @@ const updateByPatch = async (req,res,next) => {
 // Update or Create Account to DB
 const updateByPut = tryCatch(async (req,res,next) => {
     const account = await Account.findById(req.params.id).exec();
-    // if(!account) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, account ?  account._doc.userId.toString() : null , req.user);
+    const hasPermit = hasOwn(req.permsissions, account ? account._doc.userId.toString() : null , req.user);
     if(hasPermit){
         let {name,account_details,initial_value,userId} = req.body;
         const {id} = req.params;
@@ -172,8 +169,7 @@ const updateByPut = tryCatch(async (req,res,next) => {
 // Delete Single Account by Id
 const deleteById = tryCatch(async (req,res,next) => {
     const account = await Account.findById(req.params.id).exec();
-    if(!account) throw notFoundError();
-    const hasPermit = hasOwn(req.permsissions, account._doc.userId.toString() , req.user);
+    const hasPermit = hasOwn(req.permsissions, account ? account._doc.userId.toString() : null , req.user);
     if(hasPermit){
         const {id} = req.params;
         const isDeleted = await AccountLibs.deleteById(id);

@@ -14,8 +14,6 @@ const authorization = (requiredPermissions = []) => async (req,_res,next) => {
         if(role._doc.name === 'admin' ||role._doc.name === 'Admin' ||role._doc.name === 'Super-Admin' ||role._doc.name === 'super-admin' ){
             next();
         }else{
-
-
             // Check if the user has any of the requiredPermissions
             const hasRequiredPermission = requiredPermissions.some((requiredPermission) => {
                 return userPermissions.flat().includes(requiredPermission);

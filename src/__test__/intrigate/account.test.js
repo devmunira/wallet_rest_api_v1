@@ -47,7 +47,7 @@ describe('Account', () => {
     }
   });
 
-  it.only('PUT Create or Update Account', async () => {
+  it('PUT Create or Update Account', async () => {
     const accountId = '65043e8ef51cc6928406655c';
     const account = await Account.findById(accountId);
     const Unique = await Account.findOne({name : updateValidAccountMock.name}).exec()
@@ -79,7 +79,7 @@ describe('Account', () => {
       .delete(`/api/v1/accounts/${accountId}`)
       .set('Authorization', TOKEN);
     if (!account) {
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(500);
     } else {
       expect(response.status).toBe(204);
     }

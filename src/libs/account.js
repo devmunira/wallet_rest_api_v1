@@ -24,7 +24,6 @@ const createAccount = async ({name,account_details,initial_value,userId}) => {
         throw serverError(error.message)
     }
 }
-
 // count data based on filter query
 const count = (data) => {
     return Account.count(data);
@@ -64,11 +63,9 @@ const getById = async ({select,populate,id}) => {
     }else{
         throw notFoundError()
     }
-
    } catch (error) {
     throw serverError(error)
    }
-
 }
 
 // Get All Roles according to filter from DB

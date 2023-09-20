@@ -1,11 +1,12 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 dotenv.config()
+const mode = process.env.TYPE;
 
 
 
 // CONNECT WITH MONOGODB WITH MONGOOSE
-const conectMongoDB = async (mode = 'development') => {
+const conectMongoDB = async () => {
     try {
         let connect = await mongoose.connect(mode === 'test' ? process.env.MONGOOSE_TEST_STRING : process.env.MONGOOSE_STRING , {
             useNewUrlParser: true,

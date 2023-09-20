@@ -1,8 +1,8 @@
 // Access Token Validation Time
-const ACCESSTOKENLIFETIME = '12h'
+const ACCESSTOKENLIFETIME = '30day'
 
 // Refresh Token Validation Time
-const REFRESHTOKENLIFETIME = '1day'
+const REFRESHTOKENLIFETIME = '60day'
 
 
 // Default User Password

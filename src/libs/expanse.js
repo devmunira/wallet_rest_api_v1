@@ -118,7 +118,7 @@ const getById = async ({select,populate,id}) => {
 
         let populateRelations = generateSelectItems(populate,['user','category','account']);
         
-
+        
         // send request to db with all query params
         let expanse = await Expanse.findById(id)
         .select(selectedColums)

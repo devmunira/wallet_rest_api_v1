@@ -2,6 +2,8 @@ openapi: 3.0.0
 servers:
   - description: Local Server For Development
     url: http://localhost:4000/api/v1
+  - description: Live Server For Production
+    url: https://wallet-30nz.onrender.com/api/v1
 info:
   version: "1.0.0"
   title: Wallet Rest API
